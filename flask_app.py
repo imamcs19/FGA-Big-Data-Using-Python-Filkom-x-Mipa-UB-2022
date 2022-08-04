@@ -61,8 +61,8 @@ app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Bey89nkGBGUY_ap938255bnub'
 
 ############ Flask routes general: ############
 
-# # dasar ke-1 
-# # 
+# ================ awal - dasar ke-1 ===============
+# #
 # @app.route('/')
 # def hello_world():
 #     return 'Hello Big Data Using Python from Flask - FGA x Cisco Academy 2022 x Filkom UB!'
@@ -106,6 +106,7 @@ app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Bey89nkGBGUY_ap938255bnub'
 #             c +=str(i+1) + '  '
 
 #     return str(c)
+# # ================ akhir - dasar ke-1 ===============
 
 # ========= untuk Project =================
 
