@@ -192,7 +192,7 @@ def contohfp2_nonspark():
   import os.path
 
   BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-  url = os.path.join(BASE_DIR, "Salary_Data.csv")
+  url = os.path.join(BASE_DIR, "static/data_contoh/Salary_Data.csv")
 
   # Importing the dataset => ganti sesuai dengan case yg anda usulkan
   # a. Min. 30 Data dari case data simulasi dari yg Anda usulkan
@@ -224,11 +224,11 @@ def contohfp2_nonspark():
   myModelReg = regressor.fit(X_train, y_train)
 
   # Simpan hasil model fit
-  with open(os.path.join(BASE_DIR, "myModelReg.joblib.pkl"), 'wb') as f:
+  with open(os.path.join(BASE_DIR, "static/simpan_model_data/myModelReg.joblib.pkl"), 'wb') as f:
     joblib.dump(myModelReg, f, compress=9)
 
   # Load hasil model fit
-  with open(os.path.join(BASE_DIR, "myModelReg.joblib.pkl"), 'rb') as f:
+  with open(os.path.join(BASE_DIR, "static/simpan_model_data/myModelReg.joblib.pkl"), 'rb') as f:
     myModelReg_load = joblib.load(f)
 
   # Predicting the Test set results
@@ -267,7 +267,7 @@ def contohfp2_spark():
   import os
 
   BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-  url = os.path.join(BASE_DIR, "Salary_Data.csv")
+  url = os.path.join(BASE_DIR, "static/data_contoh/Salary_Data.csv")
 
   import findspark
   findspark.init()
@@ -743,7 +743,7 @@ def api():
     import sys
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    url = os.path.join(BASE_DIR, "dataset_dump_tiny.csv")
+    url = os.path.join(BASE_DIR, "static/data_contoh/dataset_dump_tiny.csv")
 
     # url = "../GGRM.JK.csv"
     # dataset=pd.read_csv(url)
