@@ -61,6 +61,54 @@ app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Bey89nkGBGUY_ap938255bnub'
 
 ############ Flask routes general: ############
 
+# # dasar ke-1 
+# # 
+# @app.route('/')
+# def hello_world():
+#     return 'Hello Big Data Using Python from Flask - FGA x Cisco Academy 2022 x Filkom UB!'
+
+# @app.route('/add')
+# def add():
+#     # membuat penjumlahan 2 bilangan
+#     a = 10
+#     b = 90
+#     c = a + b
+
+#     return str(c)
+
+# # buatlah halaman perkalian
+# # antara a*b
+# @app.route('/kali')
+# def kali():
+#     # membuat perkalian 2 bilangan
+#     a = 10
+#     b = 90
+#     c = a * b
+
+#     return str(c)
+
+# # buatlah tampilan indeks looping 1..10
+# @app.route('/loop')
+# def loop():
+#     c = ''
+#     for i in range(10): # i = 0,1,..,9
+#         c +=str(i+1) + '  '
+
+#     return str(c)
+
+# # buatlah tampilan indeks looping 1 sampai 10
+# # yang ganjil
+# @app.route('/ganjil')
+# def ganjil():
+#     c = ''
+#     for i in range(10): # i = 0,1,..,9
+#         if((i+1)%2!=0):
+#             c +=str(i+1) + '  '
+
+#     return str(c)
+
+# ========= untuk Project =================
+
 # @app.route("/")
 # def index():
 #     return render_template("index.html")
