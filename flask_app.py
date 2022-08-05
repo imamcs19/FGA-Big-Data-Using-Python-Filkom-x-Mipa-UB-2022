@@ -55,7 +55,7 @@ CORS(app, resources=r'/api/*')
 # CORS(app)
 
 # app.debug = False
-app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Bey89nkGBGUY_ap938255bnub'
+app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
 
