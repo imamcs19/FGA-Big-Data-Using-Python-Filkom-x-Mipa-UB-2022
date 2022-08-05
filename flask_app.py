@@ -222,7 +222,7 @@ def login():
 
       if hasil:
           session['name'] = v_login[3]
-          return redirect(url_for("fphome"))
+          return redirect(url_for("contohfp2_nonspark"))
       else:
           msg = "Masukkan Username (Email) dan Password dgn Benar!"
 
