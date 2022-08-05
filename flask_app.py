@@ -5,8 +5,8 @@
 # 2. Nur Silviyah Rahmi | email: silviyahrahmi@ub.ac.id | Mipa UB
 
 # Link Free Buku Ajar tentang "Big Data Dengan Java/Scala/Python"
-# dari saya (Pak Imam Cholissodin) : http://bit.ly/2FMLnfw 
-# 
+# dari saya (Pak Imam Cholissodin) : http://bit.ly/2FMLnfw
+#
 # Tgl 12 Juli 2022 - 3 September 2022
 # Kolaborasi Instruktur Filkom x Mipa UB 2022
 # Di Bawah Naungan Kominfo Pusat x Cisco Academy x lainnya dlm FGA
@@ -60,6 +60,85 @@ app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Bey89nkGBGUY_ap938255bnub'
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
 
 ############ Flask routes general: ############
+
+# # ================ awal - dasar ke-2 ===============
+# #
+
+# # buat input dari url, untuk penjumlahan misal 2 bilangan
+# @app.route('/add/<a>/<b>')
+# def add_ab(a,b):
+#     c = int(a) + float(b)
+#     return 'a + b = ' + str(c)
+#     # return 'a + b = %s' % c
+# # https://bigdatafga.pythonanywhere.com/add/1/2.5
+# # hasil => a + b = 3.5
+
+# #
+# # buatlah halaman post sekaligus get
+# # nilai a dan b, lalu ditambahkan
+# # dengan return kode html dalam flask python Web App
+# @app.route('/post_add2', methods=["POST", "GET"])
+# def inputkan_ab():
+#     # membuat penjumlahan 2 bilangan
+
+#     if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+
+#         a_in = float(request.form['a'])
+#         b_in = float(request.form['b'])
+#         c = a_in + b_in
+
+#         return '''
+#         <html>
+#             <head>
+#             </head>
+#             <body>
+#               <form method="post">
+#                 <input type="text" name="a" value="%s" />
+#                 <input type="text" name="b" value="%s" />
+#                 <input type="submit" value="Hitung a + b"/>
+
+#               </form>
+#               <h2>Hasil a + b = %s + %s = %s </h2>
+#             </body>
+#         </html>
+#         ''' % (a_in, b_in, a_in, b_in, c)
+
+#     else: # untuk yang 'GET' data awal untuk di send ke /post_add2
+#         return '''
+#             <html>
+#                 <head>
+#                 </head>
+#                 <body>
+#                   <form action="/post_add2" method="post">
+#                     Masukkan nilai a = <input type="text" name="a" value="" />
+#                     <br>
+#                     Masukkan nilai b = <input type="text" name="b" value="" />
+#                     <input type="submit" value="Hitung a + b"/>
+#                   </form>
+#                 </body>
+#             </html>
+#         '''
+
+# #
+# # buatlah halaman post sekaligus get
+# # nilai a dan b, lalu ditambahkan
+# # dengan return file "form_add3.html" dalam folder "mysite/templates", flask python Web App
+# @app.route('/post_add3', methods=["POST", "GET"])
+# def inputkan_ab3():
+#     # membuat penjumlahan 2 bilangan
+#     if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+
+#         a_in = float(request.form['a'])
+#         b_in = float(request.form['b'])
+#         c = a_in + b_in
+
+#         return render_template('form_add3.html', a_save = a_in, b_save = b_in, c_save = c)
+
+#     else: # untuk yang 'GET' data awal untuk di send ke /post_add3
+#         return render_template('form_add3.html')
+
+
+# # ================ akhir - dasar ke-2 ===============
 
 # ================ awal - dasar ke-1 ===============
 # #
