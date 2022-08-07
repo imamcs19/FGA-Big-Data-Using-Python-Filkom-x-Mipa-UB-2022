@@ -25,7 +25,7 @@ def connect_db():
     import os.path
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, "fga_big_data_rev2.db")
+    db_path = os.path.join(BASE_DIR, "data.db")
     # with sqlite3.connect(db_path) as db:
 
     return sqlite3.connect(db_path)
@@ -100,7 +100,7 @@ list_kota = ['Jakarta','Los Angeles','Chicago','New York City','Toronto','São P
 
 for nama_kota in list_kota:
 
-  each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+  each_list_link='http://api.weatherapi.com/v1/current.json?key=to2181c95fd6d746e9a1331323220104099&q='+nama_kota
   resp=requests.get(each_list_link)
 
   #http_respone 200 means OK status
