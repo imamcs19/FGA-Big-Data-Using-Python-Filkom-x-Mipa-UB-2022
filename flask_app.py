@@ -2,7 +2,7 @@
 # Universitas Brawijaya (UB) 2022 Instruktur:
 
 # 1. Imam Cholissodin, S.Si., M.Kom. | email: imamcs@ub.ac.id | Filkom UB
-# 2. Nur Silviyah Rahmi | email: silviyahrahmi@ub.ac.id | Mipa UB
+# 2. Nur Silviyah Rahmi, S.Si., M.Stat. | email: silviyahrahmi@ub.ac.id | Mipa UB
 
 # Link Free Buku Ajar tentang "Big Data Dengan Java/Scala/Python"
 # dari saya (Pak Imam Cholissodin) : http://bit.ly/2FMLnfw
@@ -55,7 +55,7 @@ CORS(app, resources=r'/api/*')
 # CORS(app)
 
 # app.debug = False
-app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
+app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_app938202255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
 
