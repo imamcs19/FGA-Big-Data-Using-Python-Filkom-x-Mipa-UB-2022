@@ -2,7 +2,7 @@
 Rencana Pembelajaran FGA Big Using Python Kelas A
 Fakultas Ilmu Komputer (Filkom), Universitas Brawijaya (UB) 2022
 Instruktur: 
-1. Imam Cholissodin, S.Si., M.Kom. | email: imamcs@ub.ac.id | FIlkom UB
+1. Imam Cholissodin, S.Si., M.Kom. | email: imamcs@ub.ac.id | Filkom UB
 2. Nur Silviyah Rahmi, S.Si., M.Stat. | email: silviyahrahmi@ub.ac.id | Mipa UB
 
 Link Free Buku Ajar tentang "Big Data Dengan Java/Scala/Python" dari saya (Pak Imam Cholissodin) : http://bit.ly/2FMLnfw
@@ -17,6 +17,9 @@ Screenshot Hasil Running Big Data App Using Python:
 
 ![Halaman Upload dan List Files Upload - Flask x SQLite - PythonAnywhere](https://github.com/imamcs19/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2021/blob/main/Halaman%20Upload%20dan%20List%20Files%20Upload%20-%20Flask%20x%20SQLite%20On%20PythonAnywhere.png)
 --> Halaman Upload dan List Files Upload - Flask x SQLite - PythonAnywhere
+
+![Contoh koding dasar PySpark (Map, Filter, Reduce, Lambda, Itertools (chain, flatmap), dll) - PythonAnywhere](https://raw.githubusercontent.com/imamcs19/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2022/main/static/etc/Contoh%20koding%20dasar%20PySpark%20(Map%2C%20Filter%2C%20Reduce%2C%20Lambda%2C%20Itertools%20(chain%2C%20flatmap)%2C%20dll)%20untuk%20Big%20Data%20Using%20Python.jpg)
+--> Contoh koding dasar PySpark (Map, Filter, Reduce, Lambda, Itertools (chain, flatmap), dll) untuk Big Data Using Python - PythonAnywhere
 
 ![Data Processing Using PySpark x Flask x SQLite - PythonAnywhere](https://github.com/imamcs19/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2021/blob/main/Data%20Processing%20Using%20PySpark%20On%20PythonAnywhere.png)
 --> Data Processing Using PySpark x Flask x SQLite - PythonAnywhere
