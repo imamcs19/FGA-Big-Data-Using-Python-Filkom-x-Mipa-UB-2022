@@ -25,7 +25,12 @@ def connect_db():
     import os.path
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, "data.db")
+    # db_path = os.path.join(BASE_DIR, "data.db")
+    # jika ingin membuat DB baru untuk penyimpanannya
+    # db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data2.db")
+    
+    db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data.db")
+    
     # with sqlite3.connect(db_path) as db:
 
     return sqlite3.connect(db_path)
