@@ -12,9 +12,8 @@
 # Di Bawah Naungan Kominfo Pusat x Cisco Academy x lainnya dlm FGA
 # Asisten Kelas A: Yusron Yogatama
 
-from flask import Flask,render_template,flash, Response, redirect,url_for,session,logging,request,jsonify
-from flask import make_response, json
-# from flask_ngrok import run_with_ngrok # Alternatif Ngrok => Heroku / PythonAnywhere / https://labs.play-with-docker.com / AWS / GCP / Azure/ eval_js dari Colab (agak terbatas) / etc
+from flask import Flask,render_template, Response, redirect,url_for,session,request,jsonify
+from flask import json, make_response
 import sqlite3
 from flask_cors import CORS
 
@@ -23,41 +22,201 @@ from collections import OrderedDict
 from operator import itemgetter
 from textblob import TextBlob
 
-# from tweepy import OAuthHandler, API, Stream
 from tweepy.streaming import StreamListener
 
 import tweepy
 import re
 import string
 import datetime
-import json
-
-
 import joblib
-
-
 from flask import send_file
 from io import BytesIO
 
 from flask_wtf.file import FileField
 from wtforms import SubmitField
-# from flask_wtf import Form
 from flask_wtf import FlaskForm
 
 # import json
 import os
 
+# # untuk CronJob
+# from apscheduler.schedulers.background import BackgroundScheduler
+from flask_crontab import Crontab
+
 app = Flask(__name__, static_folder='static')
-# run_with_ngrok(app)  # Start ngrok when app is run
+crontab = Crontab(app)
 # CORS(app)
 CORS(app, resources=r'/api/*')
 # CORS(app, resources=r'/*')
 # CORS(app)
 
 # app.debug = False
-app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_app938202255bnUB'
+app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
+
+@app.route('/job', methods = ['POST', 'GET'])
+def get_time():
+    from datetime import datetime
+    # from time import strftime
+    import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+    Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%Y-%m-%dT%H:%M'))
+
+    # time_req = request.args.get("html_time")
+    # format_time = datetime.strptime(time_req, "%Y-%m-%dT%H:%M")
+
+    # minute = format_time.minute
+    # hour = format_time.hour
+    # day = format_time.day
+    # month = format_time.month
+
+    # crontab.job(minute=minute, hour=hour, day=day, month=month)(exe_control)
+
+    # return render_template('myjob.html', time_req=time_req)
+    # return str(time_req)
+
+    if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+
+        time_req = request.form['html_time'] # time data '2022-08-09' does not match format '%Y-%m-%dT%H:%M'
+        # format_time = datetime.strptime(time_req, "%Y-%m-%dT%H:%M")
+
+        # ValueError: time data '10-08-2022 08:32:26' does not match format '%Y-%m-%dT%H:%M'
+
+        format_time = datetime.strptime(Date, "%Y-%m-%dT%H:%M")
+
+        minute = format_time.minute
+        hour = format_time.hour
+        day = format_time.day
+        month = format_time.month
+
+        # crontab.job(minute=minute, hour=hour, day=day, month=month)(exe_control)
+        crontab.job(minute="1")(exe_control)
+
+        # return str(time_req)
+        return render_template('mycronjob.html', time_req=time_req)
+
+    else: # untuk yang 'GET' data awal untuk di send ke /post_add3
+        return render_template('mycronjob.html')
+
+# - without decorator -
+def exe_control():
+    # return 'run job'
+    import requests
+    import sqlite3
+    from datetime import datetime
+    import pytz
+    Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+
+    def F2C(f_in):
+        return (f_in - 32)* 5/9
+
+    def Kelvin2C(k_in):
+      return (k_in-273.15)
+
+    def connect_db():
+        import os.path
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        # db_path = os.path.join(BASE_DIR, "data.db")
+        # jika ingin membuat DB baru untuk penyimpanannya
+        # db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data2.db")
+
+        db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data.db")
+
+        return sqlite3.connect(db_path)
+
+
+    # simpan ke db
+    conn = connect_db()
+    db = conn.cursor()
+
+    db.execute("""CREATE TABLE IF NOT EXISTS data_suhu_dll (date DATETIME, kota TEXT, suhu_dlm_celcius TEXT, precipitation_curah_hujan_dlm_persen TEXT, humidity_kelembaban_dlm_persen TEXT, wind_angin_dlm_km_per_jam TEXT) """)
+
+    # siang
+    # jam 6 pagi - 18.00
+    #
+    # malam
+    # jam 18.00 - 6 pagi
+
+    # Ref. daerah di negara lain yang selisihnya -/+[6/1/2], dll jam dgn Indonesia
+    # [0] https://time.is/id/Jakarta#time_zone
+    # [1] https://www.kompas.com/skola/read/2021/03/04/120155469/tabel-perbedaan-waktu-di-indonesia-dengan-negara-lainnya
+    #
+
+    # Perbedaan waktu dari Jakarta:
+    # Los Angeles		−14 jam
+    # Chicago			−12 jam
+    # New York City	    −11 jam
+    # Toronto			−11 jam
+    # São Paulo	    	−10 jam
+    # UTC				−7 jam
+    # Lagos		    	−6 jam
+    # London			−6 jam
+    # Johannesburg  	−5 jam
+    # Kairo		    	−5 jam
+    # Paris		    	−5 jam
+    # Zurich			−5 jam
+    # Istanbul	    	−4 jam
+    # Moskwa			−4 jam
+    # Dubai		    	−3 jam
+    # Mumbai			−1,5 jam
+    # Hong Kong	    	+1 jam
+    # Shanghai	    	+1 jam
+    # Singapura	    	+1 jam
+    # Tokyo		    	+2 jam
+    # Sydney			+4 jam
+
+    list_kota = ['Jakarta','Los Angeles','Chicago','New York City','Toronto','São Paulo', \
+                 'Lagos', 'London', 'Johannesburg', 'Kairo', 'Paris', 'Zurich', 'Istanbul', 'Moskwa', 'Dubai', \
+                'Mumbai','Hong Kong','Shanghai','Singapura','Tokyo','Sydney']
+
+
+    for nama_kota in list_kota:
+
+    #   each_list_link='http://api.weatherapi.com/v1/current.json?key=re2181c95fd6d746e9a1331323220104&q='+nama_kota
+      each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+      resp=requests.get(each_list_link)
+
+      # print(nama_kota)
+
+      #http_respone 200 means OK status
+      if resp.status_code==200:
+          resp=resp.json()
+          suhu = resp['current']['temp_c']
+          curah_hujan = resp['current']['precip_mm']
+          lembab = resp['current']['humidity']
+          angin = resp['current']['wind_mph']
+      else:
+          # print("Error")
+          suhu = '-'
+          curah_hujan = '-'
+          lembab = '-'
+          angin = '-'
+
+      print(nama_kota, 'dengan suhu = ', round(float(suhu),2),'°C', end='\n')
+
+      db.execute("""INSERT INTO data_suhu_dll (date, kota, suhu_dlm_celcius, precipitation_curah_hujan_dlm_persen, humidity_kelembaban_dlm_persen, wind_angin_dlm_km_per_jam) VALUES (?,?,?,?,?,?) """,(Date,nama_kota,suhu,curah_hujan,lembab,angin))
+
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+# # Inisialisasi variabel scheduler untuk CronJob
+# sched = BackgroundScheduler(daemon = True)
+# sched.start()
+
+# # Mendefinisikan suatu fungsi cronjob untuk run todo dalam Flask app
+# @sched.scheduled_job(trigger = 'cron', minute = '*')
+# def print_hello():
+#     print('Hello world!')
+
+# # Defining a single API endpoint
+# @app.route('/test')
+# def test_func():
+#     js = json.dumps({'Test': 'Successful!'})
+#     return Response(json.dumps(js), status = 200, mimetype = 'application/json')
 
 ############ Flask routes general: ############
 
@@ -350,24 +509,9 @@ def contohfp2_spark():
 
   import findspark
   findspark.init()
-#   import findspark
-#   findspark.init("/home/imamcs/spark-3.1.2-bin-hadoop3.2")
-
-  #os.environ["SPARK_HOME"] ="/home/imamcs/mysite/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2021/spark-2.0.0-bin-hadoop2.7"
-  #os.environ["PYTHONPATH"] ="/home/imamcs/mysite/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2021/spark-2.0.0-bin-hadoop2.7/python/"
-  #os.environ["PYTHONPATH"] +=":/home/imamcs/mysite/FGA-Big-Data-Using-Python-Filkom-x-Mipa-UB-2021/spark-2.0.0-bin-hadoop2.7/python/lib/py4j-0.10.1-src.zip"
-
-  #os.environ["PYTHONPATH"] = "/spark-2.4.1-bin-hadoop2.7/python/"
-  #os.environ["PYTHONPATH"] += ":/spark-2.4.1-bin-hadoop2.7/python/lib/py4j-0.10.7-src.zip"
-
-#   print(os.environ["SPARK_HOME"])
-
-#   print(os.environ["PYTHONPATH"])
-
-#   !echo $PYTHONPATH
 
   from pyspark.sql import SparkSession
-  spark = SparkSession.builder.appName("Linear Regression").config("spark.executor.memory", "512m").getOrCreate()
+  spark = SparkSession.builder.appName("Linear Regression").config("spark.executor.memory", "256m").getOrCreate()
 
   from pyspark.ml.regression import LinearRegression
   from pyspark.ml.linalg import Vectors
@@ -386,7 +530,7 @@ def contohfp2_spark():
         builder.\
         appName("Linear Regression").\
         master("local[*]").\
-        config("spark.executor.memory", "512m").\
+        config("spark.executor.memory", "256m").\
         getOrCreate()
 
       sc = spark.sparkContext
@@ -1192,6 +1336,122 @@ def dashboard():
     #return send_file(BytesIO(data_v), attachment_filename='flask.pdf', as_attachment=True)
 
     return render_template('dashboard.html', header = mydata)
+
+@app.route('/iot', methods=["GET", "POST"])
+def iot():
+    # if request.method == "POST":
+    #     if form.validate_on_submit():
+    #         file_name = form.file.data
+    #         database(name=file_name.filename, data=file_name.read() )
+    #         # return render_template("upload.html", form=form)
+    #         return redirect(url_for("bdc"))
+
+    if 'name' in session:
+        name = session['name']
+    else:
+        name = 'Guest'
+
+    # start kode untuk download atau export semua data dari tabel data_suhu_dll menjadi file *.csv
+    if request.method == "POST":
+
+        from io import StringIO
+        import csv
+
+        # date_var = request.args.get('date_var')
+        # kota_var = request.args.get('kota_var')
+        conn = connect_db()
+        db = conn.cursor()
+
+        output = StringIO()
+        writer = csv.writer(output)
+        c = db.execute("SELECT * FROM data_suhu_dll")
+
+        result = c.fetchall()
+        writer.writerow([i[0] for i in c.description])
+
+        for row in result:
+            line = [str(row[0]), str(row[1]), str(row[2]), str(row[3]), str(row[4]), str(row[5])]
+            writer.writerow(line)
+
+        output.seek(0)
+
+        conn.commit()
+        db.close()
+        conn.close()
+
+        return Response(output, mimetype="text/csv",
+                        headers={"Content-Disposition": "attachment;filename=data_suhu_iot_all.csv"})
+    # ending kode untuk download atau export semua data dari tabel data_suhu_dll menjadi file *.csv
+
+
+    # menampilkan data dari tabel data_suhu_dll
+    conn = connect_db()
+    db = conn.cursor()
+
+    c = db.execute(""" SELECT * FROM  data_suhu_dll """)
+
+    mydata = c.fetchall()
+    for x in c.fetchall():
+        name_v=x[0]
+        data_v=x[1]
+        break
+
+    hasil = []
+    for v_login in c:
+        hasil.append(v_login)
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+
+    return render_template("getsuhu_dll.html", header = mydata)
+
+@app.route('/del_iot/', methods=["GET"])
+def del_iot():
+    date_var = request.args.get('date_var')
+    kota_var = request.args.get('kota_var')
+    conn = connect_db()
+    db = conn.cursor()
+
+    db.execute("DELETE FROM data_suhu_dll WHERE date =\'"+ date_var +"\' AND  kota =\'"+ kota_var +"\'")
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+    return redirect(url_for("iot"))
+
+@app.route('/dw_iot/', methods=["GET"])
+def dw_iot():
+
+    from io import StringIO
+    import csv
+
+    date_var = request.args.get('date_var')
+    # kota_var = request.args.get('kota_var')
+    conn = connect_db()
+    db = conn.cursor()
+
+    output = StringIO()
+    writer = csv.writer(output)
+    c = db.execute("SELECT * FROM data_suhu_dll WHERE date =\'"+ date_var +"\'")
+
+    result = c.fetchall()
+    writer.writerow([i[0] for i in c.description])
+
+    for row in result:
+        line = [str(row[0]), str(row[1]), str(row[2]), str(row[3]), str(row[4]), str(row[5])]
+        writer.writerow(line)
+
+    output.seek(0)
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+    return Response(output, mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment;filename=data_suhu_iot.csv"})
 
 @app.route('/logout')
 def logout():
