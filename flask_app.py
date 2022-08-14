@@ -421,7 +421,7 @@ def inputkan_ab3():
 
 
 # ================================================================================
-# Untuk mengakselerasi pengerjaan sebagian FP ke-1 dan FP ke-2, berikut saya berikan:
+# Untuk mengakselerasi pengerjaan sebagian FP ke-1 dan FP ke-2, berikut:
 #
 # Contoh koding dasar operasi CRUD pada tabel CloudAI_Air,
 # mulai dari "def dasar2_create_database():" sampai sebelum "# ================ akhir - dasar ke-2 ==============="
@@ -429,6 +429,8 @@ def inputkan_ab3():
 #
 # Contoh koding dasar Run isi kode iot_api.py,
 # @app.route('/dasar2_add2')
+#
+# Jangan lupa menambahkan "from flask import render_template_string" pada bagian atas flask_app.py
 #
 # ==============================================================
 #
@@ -510,8 +512,21 @@ def dasar2_generate_data():
         df_gen ['Durasi Air Dlm Menit (Y)'] = np.round(np.random.uniform(labelTargetY[0], labelTargetY[1], df_gen.shape[0]),2)
 
         # save dataframe generate ke *.csv
-        file_name_data_generate = '/home/bigdatafga/mysite/static/data_contoh/Data_CloudAI_Air.csv'
-        df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+        import os
+        # print(os.path.expanduser("~"))
+        userhome = os.path.expanduser("~").split("/")[-1]
+        # print(userhome)
+
+        # file_name_data_generate = '/home/bigdatafga/mysite/static/data_contoh/Data_CloudAI_Air.csv'
+        # df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+
+        path = "/home/"+userhome+"/mysite/static/data_contoh"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # file_name_data_generate = 'static/data_contoh/Data_CloudAI_Air.csv'
+        # df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+        url_file_name_data_generate = os.path.join(BASE_DIR, "static/data_contoh/Data_CloudAI_Air.csv")
+        df_gen.to_csv(url_file_name_data_generate, encoding='utf-8', index=False)
 
         # read file *.csv dan tampilkan
         # data_generate = pd.read_csv(file_name_data_generate)
@@ -589,9 +604,9 @@ def dasar2_generate_data():
     cur.close()
     conn.close()
 
-@app.route('/dasar2_home')
+@app.route('/dasar2_crud')
 def dasar2_index():
-    return '<a href="/dasar2_list">Demo Menampilkan List dari Tabel</a>'
+    return '<a href="/dasar2_list">Demo Menampilkan List dari Tabel + Support => Create, Read, Update, Delete (CRUD)</a>'
 
 @app.route('/dasar2_list')
 def dasar2_list():
@@ -731,7 +746,7 @@ def dasar2_add2():
     return redirect('/dasar2_list')
 
 template_list = """
-<h2>Menampilkan Data CloudAI Air</h2>
+<h2>Menampilkan Data CloudAI Air + Support Create, Read, Update, delete (CRUD)</h2>
 <a href="{{ url_for( "dasar2_add" ) }}">Tambah Data</a> |
 <a href="{{ url_for( "dasar2_add2" ) }}">Tambah Data dari iot_api (tanpa nilai Durasi Waktu)</a>
 {% if rows %}
