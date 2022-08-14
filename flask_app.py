@@ -420,8 +420,18 @@ def inputkan_ab3():
         return render_template('form_add3.html')
 
 
-
-
+# ================================================================================
+# Untuk mengakselerasi pengerjaan sebagian FP ke-1 dan FP ke-2, berikut saya berikan:
+#
+# Contoh koding dasar operasi CRUD pada tabel CloudAI_Air,
+# mulai dari "def dasar2_create_database():" sampai sebelum "# ================ akhir - dasar ke-2 ==============="
+#
+#
+# Contoh koding dasar Run isi kode iot_api.py,
+# @app.route('/dasar2_add2')
+#
+# ==============================================================
+#
 # membuat render_template_string sebagai pengganti render_template
 # agar semua kodenya hanya dalam 1 file, sehingga lebih mudah untuk membuat dan run kodingnya
 #
