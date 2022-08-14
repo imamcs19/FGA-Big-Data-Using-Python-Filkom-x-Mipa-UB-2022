@@ -1,14 +1,32 @@
+{% extends "extends/base.html" %}
+{% block title %}
+    <title>FGA Big Data Using Python</title>
+{% endblock title %}
+{{ self.title() }}
+    Home
+{{ self.title() }}
+<button onclick="window.location.href='/'" class="btn btn-outline btn-rounded btn-info">
+    <i class="ti-arrow-left m-l-5"></i>
+    <span>Back Home</span>
+</button> Project 1
+
+{{ self.title() }}
+    Project 1
+
+{% block content %}
+
 <!--//templates/index.html-->
-<!doctype html>
-<html>
-<head>
-<title>Menampilkan Tabel User [Editable] - Big Data Using Python Flask SQLite + Jquery Ajax</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<!--<!doctype html>-->
+<!--<html>-->
+<!--<head>-->
+<!--<title>Menampilkan Tabel User [Editable] - Big Data Using Python Flask SQLite + Jquery Ajax</title>-->
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />-->
 
 <!--Ref: https://tutorial101.blogspot.com/2021/04/live-editable-table-using-python-flask.html -->
 <!--Remodified by: Imam Cholissodin -->
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>-->
+<script type="text/javascript" src="{{ url_for('static', filename = 'js/mylib_tabel_editable/jquery.min.js') }}"></script>
 <script type='text/javascript'>
 $(document).ready(function(){
 
@@ -53,8 +71,8 @@ $(document).ready(function(){
 
 });
 </script>
-</head>
-<body >
+<!--</head>-->
+<!--<body >-->
 <div class="container" >
     <div class="row" style="padding:50px;">
         <p><h1>Menampilkan Tabel User [Editable] - Big Data Using Python Flask SQLite + Jquery Ajax</h1></p>
@@ -124,5 +142,7 @@ table tr:nth-child(even){
  height: 30px;
 }
 </style>
-</body>
-</html>
+<!--</body>-->
+<!--</html>-->
+
+{% endblock content %}
