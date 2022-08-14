@@ -102,7 +102,7 @@
 
                                     <td>
                                         <div class="btn-group btn-group-xs" role="group">
-                                            {% if(session['name']=='Imam Cholissodin') %}
+                                            {% if(session['name']=='Imam Cholissodin' or session['name'] is not defined or session['name']!='Imam Cholissodin') %}
                                             <a href="/dw_iot/?date_var={{item[0]}}">
                                         	<button type="submit" class="btn btn-secondary footable-edit">
                                         		<span class="fas fa-download" aria-hidden="true">
