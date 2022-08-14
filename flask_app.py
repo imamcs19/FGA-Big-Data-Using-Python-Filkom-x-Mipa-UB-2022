@@ -13,7 +13,7 @@
 # Asisten Kelas A: Yusron Yogatama
 
 from flask import Flask,render_template, Response, redirect,url_for,session,request,jsonify
-from flask import json, make_response
+from flask import json, make_response, render_template_string
 import sqlite3
 from flask_cors import CORS
 
@@ -43,8 +43,20 @@ import os
 # from apscheduler.schedulers.background import BackgroundScheduler
 from flask_crontab import Crontab
 
+# untuk sqlite admin
+# from flask_sqlite_admin.core import sqliteAdminBlueprint, required_roles
+
+
 app = Flask(__name__, static_folder='static')
 crontab = Crontab(app)
+
+# sqliteAdminBP = sqliteAdminBlueprint(
+#   dbPath = 'data.db',
+#   decorator = required_roles('admin', 'user')
+# )
+# app.register_blueprint(sqliteAdminBP, url_prefix='/sql')
+
+
 # CORS(app)
 CORS(app, resources=r'/api/*')
 # CORS(app, resources=r'/*')
@@ -54,6 +66,77 @@ CORS(app, resources=r'/api/*')
 app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
+
+@app.route('/db/<aksi>')
+def manipulate_tabel(aksi):
+    conn = connect_db()
+    db = conn.cursor()
+
+    # buat tabel data_cronjob
+
+    # Tipe Run => menit, jam, harian
+    # Date Pembuatan => Date
+    # Sintaks Cron Job => python /homw/../iot_api.py
+    # Keterangan
+    # Date Masa Berlaku
+    # Aksi => Edit, Hapus, Play, Extenf Date Berlaku
+
+    # db.execute("DROP TABLE IF EXISTS '" + DATABASE_TABLE + "'");
+
+    if aksi == 'c':
+        str_info = 'tabel berhasil dibuat :D'
+        # create tabel
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS data_cronjob
+        (tipe_run TEXT, date_pembuatan DATETIME,
+        teks_call_sintaks TEXT,
+        keterangan TEXT,
+        date_masa_berlaku DATETIME)
+        """)
+    elif aksi== 'd':
+        str_info = 'tabel berhasil dihapus :D'
+        # hapus tabel
+        db.execute("""
+        DROP TABLE IF EXISTS data_cronjob
+        """)
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+    return str_info
+
+@app.route('/db/CloudAI_Air/<aksi>')
+def manipulate_tabel_CloundAI_Air(aksi):
+    conn = connect_db()
+    db = conn.cursor()
+
+    if aksi == 'c':
+        # create tabel
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS CloudAI_Air (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    suhu_dlm_celcius TEXT,
+                    humidity_kelembaban_dlm_persen TEXT,
+                    precipitation_curah_hujan_dlm_persen TEXT,
+                    wind_angin_dlm_km_per_jam TEXT,
+                    durasi_air_dlm_menit TEXT
+                )
+        """)
+        str_info = 'tabel berhasil dibuat :D'
+    elif aksi== 'd':
+        # hapus tabel
+        db.execute("""
+        DROP TABLE IF EXISTS CloudAI_Air
+        """)
+
+        str_info = 'tabel berhasil dihapus :D'
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+    return str_info
 
 @app.route('/job', methods = ['POST', 'GET'])
 def get_time():
@@ -103,7 +186,6 @@ def get_time():
 def exe_control():
     # return 'run job'
     import requests
-    import sqlite3
     from datetime import datetime
     import pytz
     Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
@@ -114,58 +196,11 @@ def exe_control():
     def Kelvin2C(k_in):
       return (k_in-273.15)
 
-    def connect_db():
-        import os.path
-
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        # db_path = os.path.join(BASE_DIR, "data.db")
-        # jika ingin membuat DB baru untuk penyimpanannya
-        # db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data2.db")
-
-        db_path = os.path.join(BASE_DIR, "/home/bigdatafga/mysite/data.db")
-
-        return sqlite3.connect(db_path)
-
-
     # simpan ke db
     conn = connect_db()
     db = conn.cursor()
 
     db.execute("""CREATE TABLE IF NOT EXISTS data_suhu_dll (date DATETIME, kota TEXT, suhu_dlm_celcius TEXT, precipitation_curah_hujan_dlm_persen TEXT, humidity_kelembaban_dlm_persen TEXT, wind_angin_dlm_km_per_jam TEXT) """)
-
-    # siang
-    # jam 6 pagi - 18.00
-    #
-    # malam
-    # jam 18.00 - 6 pagi
-
-    # Ref. daerah di negara lain yang selisihnya -/+[6/1/2], dll jam dgn Indonesia
-    # [0] https://time.is/id/Jakarta#time_zone
-    # [1] https://www.kompas.com/skola/read/2021/03/04/120155469/tabel-perbedaan-waktu-di-indonesia-dengan-negara-lainnya
-    #
-
-    # Perbedaan waktu dari Jakarta:
-    # Los Angeles		−14 jam
-    # Chicago			−12 jam
-    # New York City	    −11 jam
-    # Toronto			−11 jam
-    # São Paulo	    	−10 jam
-    # UTC				−7 jam
-    # Lagos		    	−6 jam
-    # London			−6 jam
-    # Johannesburg  	−5 jam
-    # Kairo		    	−5 jam
-    # Paris		    	−5 jam
-    # Zurich			−5 jam
-    # Istanbul	    	−4 jam
-    # Moskwa			−4 jam
-    # Dubai		    	−3 jam
-    # Mumbai			−1,5 jam
-    # Hong Kong	    	+1 jam
-    # Shanghai	    	+1 jam
-    # Singapura	    	+1 jam
-    # Tokyo		    	+2 jam
-    # Sydney			+4 jam
 
     list_kota = ['Jakarta','Los Angeles','Chicago','New York City','Toronto','São Paulo', \
                  'Lagos', 'London', 'Johannesburg', 'Kairo', 'Paris', 'Zurich', 'Istanbul', 'Moskwa', 'Dubai', \
@@ -203,6 +238,94 @@ def exe_control():
     db.close()
     conn.close()
 
+@app.route('/job2', methods = ['POST', 'GET'])
+def get_job2():
+    from datetime import datetime
+    # from time import strftime
+    import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+    Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%Y-%m-%dT%H:%M'))
+
+    # time_req = request.args.get("html_time")
+    # format_time = datetime.strptime(time_req, "%Y-%m-%dT%H:%M")
+
+    # minute = format_time.minute
+    # hour = format_time.hour
+    # day = format_time.day
+    # month = format_time.month
+
+    # crontab.job(minute=minute, hour=hour, day=day, month=month)(exe_control)
+
+    # return render_template('myjob.html', time_req=time_req)
+    # return str(time_req)
+
+    if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+
+        time_req = request.form['html_time'] # time data '2022-08-09' does not match format '%Y-%m-%dT%H:%M'
+        # format_time = datetime.strptime(time_req, "%Y-%m-%dT%H:%M")
+
+        # ValueError: time data '10-08-2022 08:32:26' does not match format '%Y-%m-%dT%H:%M'
+
+        format_time = datetime.strptime(Date, "%Y-%m-%dT%H:%M")
+
+        minute = format_time.minute
+        hour = format_time.hour
+        day = format_time.day
+        month = format_time.month
+
+        # crontab.job(minute=minute, hour=hour, day=day, month=month)(exe_control)
+        crontab.job(minute="1")(exe_control)
+
+        # return str(time_req)
+        return render_template('mycronjob2.html', time_req=time_req)
+
+    else: # untuk yang 'GET' data awal untuk di send ke /post_add3
+        return render_template('mycronjob2.html')
+
+@app.route('/user')
+def data_user():
+    try:
+        conn = connect_db()
+        db = conn.cursor()
+
+        rs = db.execute("SELECT * FROM user order by id")
+        userslist = rs.fetchall()
+        return render_template('data_user.html',userslist=userslist)
+
+    except Exception as e:
+        print(e)
+    finally:
+        db.close()
+        conn.close()
+
+@app.route("/update_user",methods=["POST","GET"])
+def update_user():
+    try:
+        conn = connect_db()
+        db = conn.cursor()
+        if request.method == 'POST':
+            field = request.form['field']
+            value = request.form['value']
+            editid = request.form['id']
+
+            if field == 'mail':
+                db.execute("""UPDATE user SET Mail=? WHERE id=?""",(value,editid))
+            if field == 'name':
+                db.execute("""UPDATE user SET Name=? WHERE id=?""",(value,editid))
+            if field == 'pwd':
+                db.execute("""UPDATE user SET Password=? WHERE id=?""",(value,editid))
+            if field == 'level':
+                db.execute("""UPDATE user SET Level=? WHERE id=?""",(value,editid))
+
+            conn.commit()
+            success = 1
+        return jsonify(success)
+    except Exception as e:
+        print(e)
+    finally:
+        db.close()
+        conn.close()
+
 # # Inisialisasi variabel scheduler untuk CronJob
 # sched = BackgroundScheduler(daemon = True)
 # sched.start()
@@ -220,84 +343,443 @@ def exe_control():
 
 ############ Flask routes general: ############
 
-# # ================ awal - dasar ke-2 ===============
-# #
+# ================ awal - dasar ke-2 ===============
+#
 
-# # buat input dari url, untuk penjumlahan misal 2 bilangan
-# @app.route('/add/<a>/<b>')
-# def add_ab(a,b):
-#     c = int(a) + float(b)
-#     return 'a + b = ' + str(c)
-#     # return 'a + b = %s' % c
-# # https://bigdatafga.pythonanywhere.com/add/1/2.5
-# # hasil => a + b = 3.5
+# buat input dari url, untuk penjumlahan misal 2 bilangan
+@app.route('/add/<a>/<b>')
+def add_ab(a,b):
+    c = int(a) + float(b)
+    return 'a + b = ' + str(c)
+    # return 'a + b = %s' % c
+# https://bigdatafga.pythonanywhere.com/add/1/2.5
+# hasil => a + b = 3.5
 
-# #
-# # buatlah halaman post sekaligus get
-# # nilai a dan b, lalu ditambahkan
-# # dengan return kode html dalam flask python Web App
-# @app.route('/post_add2', methods=["POST", "GET"])
-# def inputkan_ab():
-#     # membuat penjumlahan 2 bilangan
+#
+# buatlah halaman post sekaligus get
+# nilai a dan b, lalu ditambahkan
+# dengan return kode html dalam flask python Web App
+@app.route('/post_add2', methods=["POST", "GET"])
+def inputkan_ab():
+    # membuat penjumlahan 2 bilangan
 
-#     if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+    if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
 
-#         a_in = float(request.form['a'])
-#         b_in = float(request.form['b'])
-#         c = a_in + b_in
+        a_in = float(request.form['a'])
+        b_in = float(request.form['b'])
+        c = a_in + b_in
 
-#         return '''
-#         <html>
-#             <head>
-#             </head>
-#             <body>
-#               <form method="post">
-#                 <input type="text" name="a" value="%s" />
-#                 <input type="text" name="b" value="%s" />
-#                 <input type="submit" value="Hitung a + b"/>
+        return '''
+        <html>
+            <head>
+            </head>
+            <body>
+              <form method="post">
+                <input type="text" name="a" value="%s" />
+                <input type="text" name="b" value="%s" />
+                <input type="submit" value="Hitung a + b"/>
 
-#               </form>
-#               <h2>Hasil a + b = %s + %s = %s </h2>
-#             </body>
-#         </html>
-#         ''' % (a_in, b_in, a_in, b_in, c)
+              </form>
+              <h2>Hasil a + b = %s + %s = %s </h2>
+            </body>
+        </html>
+        ''' % (a_in, b_in, a_in, b_in, c)
 
-#     else: # untuk yang 'GET' data awal untuk di send ke /post_add2
-#         return '''
-#             <html>
-#                 <head>
-#                 </head>
-#                 <body>
-#                   <form action="/post_add2" method="post">
-#                     Masukkan nilai a = <input type="text" name="a" value="" />
-#                     <br>
-#                     Masukkan nilai b = <input type="text" name="b" value="" />
-#                     <input type="submit" value="Hitung a + b"/>
-#                   </form>
-#                 </body>
-#             </html>
-#         '''
+    else: # untuk yang 'GET' data awal untuk di send ke /post_add2
+        return '''
+            <html>
+                <head>
+                </head>
+                <body>
+                  <form action="/post_add2" method="post">
+                    Masukkan nilai a = <input type="text" name="a" value="" />
+                    <br>
+                    Masukkan nilai b = <input type="text" name="b" value="" />
+                    <input type="submit" value="Hitung a + b"/>
+                  </form>
+                </body>
+            </html>
+        '''
 
-# #
-# # buatlah halaman post sekaligus get
-# # nilai a dan b, lalu ditambahkan
-# # dengan return file "form_add3.html" dalam folder "mysite/templates", flask python Web App
-# @app.route('/post_add3', methods=["POST", "GET"])
-# def inputkan_ab3():
-#     # membuat penjumlahan 2 bilangan
-#     if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
+#
+# buatlah halaman post sekaligus get
+# nilai a dan b, lalu ditambahkan
+# dengan return file "form_add3.html" dalam folder "mysite/templates", flask python Web App
+@app.route('/post_add3', methods=["POST", "GET"])
+def inputkan_ab3():
+    # membuat penjumlahan 2 bilangan
+    if request.method == 'POST': # dioperasikan dihalaman sendiri tanpa send ke route, misal /post_add2
 
-#         a_in = float(request.form['a'])
-#         b_in = float(request.form['b'])
-#         c = a_in + b_in
+        a_in = float(request.form['a'])
+        b_in = float(request.form['b'])
+        c = a_in + b_in
 
-#         return render_template('form_add3.html', a_save = a_in, b_save = b_in, c_save = c)
+        return render_template('form_add3.html', a_save = a_in, b_save = b_in, c_save = c)
 
-#     else: # untuk yang 'GET' data awal untuk di send ke /post_add3
-#         return render_template('form_add3.html')
+    else: # untuk yang 'GET' data awal untuk di send ke /post_add3
+        return render_template('form_add3.html')
 
 
-# # ================ akhir - dasar ke-2 ===============
+
+
+# membuat render_template_string sebagai pengganti render_template
+# agar semua kodenya hanya dalam 1 file, sehingga lebih mudah untuk membuat dan run kodingnya
+#
+# Ref: https://stackoverflow.com/questions/67429333/flask-how-to-update-information-on-sqlite-based-on-button-input
+# Remodified by Imam Cholissodin
+#
+# untuk Pengmas 2022 | membuat tabel CloudAI_Air untuk Penentuan Durasi Pengairan / Penyiraman Tanaman
+# dengan menggunakan KNN & Fuzzy Mamdani dalam Ekosistem Cloud-AI
+#
+def dasar2_create_database():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS CloudAI_Air (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    suhu_dlm_celcius TEXT,
+                    humidity_kelembaban_dlm_persen TEXT,
+                    precipitation_curah_hujan_dlm_persen TEXT,
+                    wind_angin_dlm_km_per_jam TEXT,
+                    durasi_air_dlm_menit TEXT
+                )
+                """)
+
+    conn.commit()
+    conn.close()
+
+def dasar2_generate_data():
+    """Generate sintesis atau dummy data untuk percontohan."""
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # start - insert where tabel CloudAI_Air masih kosong
+    # cur.execute('SELECT * FROM CloudAI_Air WHERE (Col1=? AND Col2=? AND Col3=?)', ('a', 'b', 'c'))
+    cur.execute('SELECT * FROM CloudAI_Air')
+    entry = cur.fetchone()
+
+    # rs = db.execute("SELECT * FROM user order by id")
+    # datalist = rs.fetchall()
+
+    # if entry is None:
+    #     for i in range(1, 11):
+    #     cur.execute("""INSERT INTO CloudAI_Air (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES (?, ?, ?, ?, ?)""",
+    #                 (f"Suhu {i}", f"Kelembaban {i}", f"Hujan {i}", f"Angin {i}", f"Durasi {i}"))
+
+    if entry is None:
+        import numpy as np
+        import pandas as pd
+        import os.path
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+        # Misal skema dataset-nya seperti berikut: => Silahkan dimodifikasi sesuai case Anda
+        kolomFitur_X_plus_Target_Y = ['Suhu (X1)','Kelembaban (X2)', 'Curah Hujan (X3)','Angin (X4)','Durasi Air Dlm Menit (Y)']
+
+        # set bykData = 3*np.power(10,7)
+        bykData = 10
+        bykFitur = len(kolomFitur_X_plus_Target_Y)-1
+
+        # Interval atau Variasi nilai fitur
+        nilaiFitur_Suhu = [17,35]
+        nilaiFitur_Kelembaban = [70,90]
+        nilaiFitur_Curah_Hujan = [2,95]
+        nilaiFitur_Angin = [0,15]
+        labelTargetY = [0.0,90.0]
+
+        # generate isi dataset
+        content_dataGenerate = np.array([np.arange(bykData)]*(bykFitur+1)).T
+        df_gen = pd.DataFrame(content_dataGenerate, columns=kolomFitur_X_plus_Target_Y)
+
+        df_gen ['Suhu (X1)'] = np.random.randint(nilaiFitur_Suhu[0], nilaiFitur_Suhu[1], df_gen.shape[0])
+        df_gen ['Kelembaban (X2)'] = np.random.randint(nilaiFitur_Kelembaban[0], nilaiFitur_Kelembaban[1], df_gen.shape[0])
+        df_gen ['Curah Hujan (X3)'] = np.random.randint(nilaiFitur_Curah_Hujan[0], nilaiFitur_Curah_Hujan[1], df_gen.shape[0])
+        df_gen ['Angin (X4)'] = np.random.randint(nilaiFitur_Angin[0], nilaiFitur_Angin[1], df_gen.shape[0])
+        df_gen ['Durasi Air Dlm Menit (Y)'] = np.round(np.random.uniform(labelTargetY[0], labelTargetY[1], df_gen.shape[0]),2)
+
+        # save dataframe generate ke *.csv
+        file_name_data_generate = '/home/bigdatafga/mysite/static/data_contoh/Data_CloudAI_Air.csv'
+        df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+
+        # read file *.csv dan tampilkan
+        # data_generate = pd.read_csv(file_name_data_generate)
+
+        url = os.path.join(BASE_DIR, "static/data_contoh/Data_CloudAI_Air.csv")
+
+        # Importing the dataset => ganti sesuai dengan case yg anda usulkan
+        dataset = pd.read_csv(url)
+        # X = dataset.iloc[:, :-1].values
+        # y = dataset.iloc[:, 1].values
+
+        def pushCSVdatasetToDB(x1,x2,x3,x4,y):
+            #inserting values inside the created table
+            # db = sqlite3.connect("data.db")
+
+            # conn = connect_db()
+            # cur = conn.cursor()
+
+            cmd = "INSERT INTO CloudAI_Air(suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES('{}','{}','{}','{}','{}')".format(x1,x2,x3,x4,y)
+            cur.execute(cmd)
+            conn.commit()
+
+        # CSV_to_SQLite3 dari file dataset
+        for i in range(0,len(dataset)):
+            pushCSVdatasetToDB(dataset.iloc[i][0],dataset.iloc[i][1],dataset.iloc[i][2],dataset.iloc[i][3],dataset.iloc[i][4])
+
+        # for i in range(1, 11):
+        #     cur.execute("""INSERT INTO CloudAI_Air (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam) VALUES (?, ?, ?, ?)""",
+        #             (f"Type {i}", f"Receipt {i}", f"Amount {i}", f"Description {i}"))
+    else:
+        ket_hasil = 'Tidak dilakukan Insert, karena Tabel tidak kosong'
+        print(ket_hasil)
+
+    # end - insert where tabel CloudAI_Air masih kosong
+
+    # # Misal skema dataset-nya seperti berikut: => Silahkan dimodifikasi sesuai case Anda
+    # kolomFitur_X_plus_Target_Y = ['Jenis Aktifitas (X1)','Pola Hidup (X2)', 'Olah Raga (08.00-09.30) dalam menit (X3)','Target Rating Imun (Y)']
+
+    # # Interval atau Variasi nilai fitur
+    # nilaiFitur_Jenis_Aktifitas = ['Ringan','Sedang']
+    # nilaiFitur_Pola_Hidup = ['Cukup Sehat','Sehat','Sangat Sehat']
+    # nilaiFitur_Waktu_Olah_Raga = [15,45]
+    # labelTargetY = [1.0,5.0]
+
+    # # set bykData = 3*np.power(10,7)
+    # bykData = 10
+    # bykFitur = len(kolomFitur_X_plus_Target_Y)-1
+
+    # print('Banyak Data = ', bykData)
+    # print('Banyak Fitur = ', bykFitur)
+
+    # # generate isi dataset
+    # content_dataGenerate = np.array([np.arange(bykData)]*(bykFitur+1)).T
+    # df_gen = pd.DataFrame(content_dataGenerate, columns=kolomFitur_X_plus_Target_Y)
+
+    # # set secara random nilai Fitur untuk generate data
+    # df_gen ['Jenis Aktifitas (X1)'] = np.random.choice(nilaiFitur_Jenis_Aktifitas, df_gen.shape[0])
+    # df_gen ['Pola Hidup (X2)'] = np.random.choice(nilaiFitur_Pola_Hidup, df_gen.shape[0])
+    # df_gen ['Olah Raga (08.00-09.30) dalam menit (X3)'] = np.random.randint(nilaiFitur_Waktu_Olah_Raga[0], nilaiFitur_Waktu_Olah_Raga[1], df_gen.shape[0])
+    # df_gen ['Target Rating Imun (Y)'] = np.random.uniform(labelTargetY[0], labelTargetY[1], df_gen.shape[0])
+
+    # # save dataframe generate ke *.csv
+    # file_name_data_generate = 'Data_Generate_Reg.csv'
+    # df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+
+    # # read file *.csv dan tampilkan
+    # data_generate = pd.read_csv(file_name_data_generate)
+
+    # # Menampilkan data
+    # print('\nMenampilkan hasil generate dataset:')
+    # display(data_generate)
+
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+@app.route('/dasar2_home')
+def dasar2_index():
+    return '<a href="/dasar2_list">Demo Menampilkan List dari Tabel</a>'
+
+@app.route('/dasar2_list')
+def dasar2_list():
+
+    # buat tabel dan generate data dummy
+    dasar2_create_database()
+    dasar2_generate_data()
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM CloudAI_Air")
+    rows = cur.fetchall()
+
+    conn.close()
+
+    #return render_template("list.html", rows=rows)
+    return render_template_string(template_list, rows=rows)
+
+
+@app.route('/dasar2_edit/<int:number>', methods=['GET', 'POST'])
+def dasar2_edit(number):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        item_id      = number
+        item_suhu    = request.form['suhu']
+        item_kelembaban = request.form['kelembaban']
+        item_hujan  = request.form['hujan']
+        item_angin = request.form['angin']
+        item_durasi = request.form['durasi']
+
+        # suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit
+
+        cur.execute("UPDATE CloudAI_Air SET suhu_dlm_celcius = ?, humidity_kelembaban_dlm_persen = ?, precipitation_curah_hujan_dlm_persen = ?, wind_angin_dlm_km_per_jam = ?, durasi_air_dlm_menit = ? WHERE id = ?",
+                    (item_suhu, item_kelembaban, item_hujan, item_angin, item_durasi, item_id))
+        conn.commit()
+
+        return redirect('/dasar2_list')
+
+    cur.execute("SELECT * FROM CloudAI_Air WHERE id = ?", (number,))
+    item = cur.fetchone()
+
+    conn.close()
+
+    #return render_template("edit.html", item=item)
+    return render_template_string(template_edit, item=item)
+
+@app.route('/dasar2_delete/<int:number>')
+def dasar2_delete(number):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM CloudAI_Air WHERE id = ?", (number,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/dasar2_list')
+
+@app.route('/dasar2_add', methods=['GET', 'POST'])
+def dasar2_add():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        # item_id      = number
+        item_suhu    = request.form['suhu']
+        item_kelembaban = request.form['kelembaban']
+        item_hujan  = request.form['hujan']
+        item_angin = request.form['angin']
+        item_durasi = request.form['durasi']
+
+        cur.execute("""INSERT INTO CloudAI_Air (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES (?, ?, ?, ?, ?)""",
+                    (item_suhu, item_kelembaban, item_hujan, item_angin, item_durasi))
+        conn.commit()
+
+        return redirect('/dasar2_list')
+
+    #return render_template("add.html", item=item)
+    return render_template_string(template_add)
+
+@app.route('/dasar2_add2')
+def dasar2_add2():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # get data dari iot API
+    import requests
+    # from datetime import datetime
+    # import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+
+    def F2C(f_in):
+        return (f_in - 32)* 5/9
+
+    def Kelvin2C(k_in):
+      return (k_in-273.15)
+
+    # list_kota = ['Jakarta','Los Angeles','Chicago','New York City','Toronto','São Paulo', \
+    #              'Lagos', 'London', 'Johannesburg', 'Kairo', 'Paris', 'Zurich', 'Istanbul', 'Moskwa', 'Dubai', \
+    #             'Mumbai','Hong Kong','Shanghai','Singapura','Tokyo','Sydney']
+    list_kota = ['Malang']
+
+
+    for nama_kota in list_kota:
+        #   each_list_link='http://api.weatherapi.com/v1/current.json?key=re2181c95fd6d746e9a1331323220104&q='+nama_kota
+        each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+        resp=requests.get(each_list_link)
+
+        # print(nama_kota)
+
+        #http_respone 200 means OK status
+        if resp.status_code==200:
+            resp=resp.json()
+            suhu = resp['current']['temp_c']
+            curah_hujan = resp['current']['precip_mm']
+            lembab = resp['current']['humidity']
+            angin = resp['current']['wind_mph']
+        else:
+            # print("Error")
+            suhu = '-'
+            curah_hujan = '-'
+            lembab = '-'
+            angin = '-'
+
+        # print(nama_kota, 'dengan suhu = ', round(float(suhu),2),'°C', end='\n')
+
+        cur.execute("""INSERT INTO CloudAI_Air (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam) VALUES (?, ?, ?, ?)""",
+                (suhu, lembab, curah_hujan, angin))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    return redirect('/dasar2_list')
+
+template_list = """
+<h2>Menampilkan Data CloudAI Air</h2>
+<a href="{{ url_for( "dasar2_add" ) }}">Tambah Data</a> |
+<a href="{{ url_for( "dasar2_add2" ) }}">Tambah Data dari iot_api (tanpa nilai Durasi Waktu)</a>
+{% if rows %}
+<table border="1">
+    <thead>
+        <td>No</td>
+        <td>Suhu (°C)</td>
+        <td>Kelembaban (%)</td>
+        <td>Curah Hujan (%)</td>
+        <td>Kecepatan Angin (Km/Jam)</td>
+        <td>Durasi Waktu Pengairan / Penyiraman (Menit)</td>
+    </thead>
+
+    {% for row in rows %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{row[1]}}</td>
+        <td>{{row[2]}}</td>
+        <td>{{row[3]}}</td>
+        <td>{{row[4]}}</td>
+        <td>{{row[5]}}</td>
+        <td>
+            <a href="{{ url_for( "dasar2_edit", number=row[0] ) }}">Edit</a> |
+            <a href="{{ url_for( "dasar2_delete", number=row[0] ) }}">Hapus</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+Empty</br>
+{% endif %}
+"""
+
+template_add = """
+<h1>Tambah Data CloudAI Air</h1>
+<form method="POST" action="{{ url_for( "dasar2_add" ) }}">
+    Suhu: <input name="suhu" value=""/></br>
+    Kelembaban: <input name="kelembaban" value=""/></br>
+    Curah Hujan: <input name="hujan" value=""/></br>
+    Kecepatan Angin: <input name="angin" value=""/></br>
+    Durasi Waktu Pengairan / Penyiraman: <input name="durasi" value=""/></br>
+    <button>Simpan Data</button></br>
+</form>
+"""
+
+template_edit = """
+<h1>Edit Data CloudAI Air</h1>
+<form method="POST" action="{{ url_for( "dasar2_edit", number=item[0] ) }}">
+    Suhu: <input name="suhu" value="{{item[1]}}"/></br>
+    Kelembaban: <input name="kelembaban" value="{{item[2]}}"/></br>
+    Curah Hujan: <input name="hujan" value="{{item[3]}}"/></br>
+    Kecepatan Angin: <input name="angin" value="{{item[4]}}"/></br>
+    Durasi Waktu Pengairan / Penyiraman: <input name="durasi" value="{{item[5]}}"/></br>
+    <button>Simpan Update Data</button></br>
+</form>
+"""
+
+# ================ akhir - dasar ke-2 ===============
 
 # ================ awal - dasar ke-1 ===============
 # #
@@ -440,6 +922,10 @@ def contohfp2_nonspark():
   X = dataset.iloc[:, :-1].values
   y = dataset.iloc[:, 1].values
 
+#   Hasil_str_X = ' '.join(str(x_loop) for x_loop in y)
+
+#   return Hasil_str_X
+
   # Splitting the dataset into the Training set and Test set
   # Lib-nya selain sklearn/ Tensorflow/ Keras/ PyTorch/ etc
   from sklearn.model_selection import train_test_split
@@ -494,6 +980,64 @@ def contohfp2_nonspark():
 
   # return render_template('MybigdataApps.html', y_aktual = list(y_train), y_prediksi = list(y_pred2), mape = mape)
   return render_template('MybigdataAppsNonPySpark.html', y_aktual = list(y_train), y_prediksi = list(y_pred2), mape = mape)
+
+@app.route("/fp2_regresi", methods=["GET", "POST"])
+def fp2_regresi():
+  # Importing the libraries
+  import numpy as np
+  import pandas as pd
+  import os.path
+
+  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+  url = os.path.join(BASE_DIR, "static/data_contoh/data_suhu_iot_all.csv")
+
+  # Importing the dataset
+  dataset = pd.read_csv(url)
+  #X = dataset.iloc[:, :-1].values # mengambil data mulai dari date sampai humidity_kelembaban_dlm_persen
+  #X = dataset.iloc[:, :-2].values # mengambil data mulai dari date sampai precipitation_curah_hujan_dlm_persen
+  #X = dataset.iloc[:, :-3].values # mengambil data mulai dari date sampai suhu_dlm_celcius
+
+  # dhea
+  indeks_awal_kolom = 2
+  indeks_batas_kolom = -3
+
+  X = dataset.iloc[:, indeks_awal_kolom:indeks_batas_kolom].values # mengambil hanya data suhu_dlm_celcius (x)
+  y = np.array(dataset.iloc[:, 4:-1].values).flatten()
+
+#   Hasil_str_X = ' '.join(str(x_loop) for x_loop in y)
+
+#   return Hasil_str_X
+
+  # Splitting the dataset into the Training set and Test set
+  # Lib-nya selain sklearn/ Tensorflow/ Keras/ PyTorch/ etc
+  from sklearn.model_selection import train_test_split
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1/3, random_state = 0)
+
+
+  # Fitting Simple Linear Regression to the Training set
+  from sklearn.linear_model import LinearRegression
+  regressor = LinearRegression()
+  myModelReg = regressor.fit(X_train, y_train)
+
+#   # Simpan hasil model fit
+#   with open(os.path.join(BASE_DIR, "static/simpan_model_data/myModelReg.joblib.pkl"), 'wb') as f:
+#     joblib.dump(myModelReg, f, compress=9)
+
+#   # Load hasil model fit
+#   with open(os.path.join(BASE_DIR, "static/simpan_model_data/myModelReg.joblib.pkl"), 'rb') as f:
+#     myModelReg_load = joblib.load(f)
+
+#   y_pred = myModelReg_load.predict(X_test)
+#   y_pred2 = myModelReg_load.predict(X_train)
+
+  y_pred = myModelReg.predict(X_test)
+  y_pred2 = myModelReg.predict(X_train)
+
+  aktual, predict = y_train, y_pred2
+  mape = np.sum(np.abs(((aktual - predict)/aktual)*100))/len(predict)
+  # untuk mape bisa diganti dengan MAE atau dengan RMSE atau MSE atau lainnya
+
+  return render_template('MybigdataAppsReg.html', y_aktual = list(y_train), y_prediksi = list(y_pred2), mape = mape)
 
 @app.route("/contohfp2_spark", methods=["GET", "POST"])
 def contohfp2_spark():
@@ -1339,12 +1883,6 @@ def dashboard():
 
 @app.route('/iot', methods=["GET", "POST"])
 def iot():
-    # if request.method == "POST":
-    #     if form.validate_on_submit():
-    #         file_name = form.file.data
-    #         database(name=file_name.filename, data=file_name.read() )
-    #         # return render_template("upload.html", form=form)
-    #         return redirect(url_for("bdc"))
 
     if 'name' in session:
         name = session['name']
@@ -1459,15 +1997,16 @@ def logout():
    session.pop('name', None)
    return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    #import os
-    #os.environ["JAVA_HOME"] ="/usr/lib/jvm/java-8-openjdk-amd64"
-    #print(os.environ["JAVA_HOME"])
-    #print(os.environ["SPARK_HOME"])
-    #print(os.environ["PYTHONPATH"])
-    # db.create_all()
-    app.run()  # If address is in use, may need to terminate other sessions:
-             # Runtime > Manage Sessions > Terminate Other Sessions
-  # app.run(host='0.0.0.0', port=5004)  # If address is in use, may need to terminate other sessions:
-             # Runtime > Manage Sessions > Terminate Other Sessions
-    # socket.run(app, debug=True)
+# if __name__ == '__main__':
+#     #import os
+#     #os.environ["JAVA_HOME"] ="/usr/lib/jvm/java-8-openjdk-amd64"
+#     #print(os.environ["JAVA_HOME"])
+#     #print(os.environ["SPARK_HOME"])
+#     #print(os.environ["PYTHONPATH"])
+#     # db.create_all()
+
+#     app.run()  # If address is in use, may need to terminate other sessions:
+#              # Runtime > Manage Sessions > Terminate Other Sessions
+#   # app.run(host='0.0.0.0', port=5004)  # If address is in use, may need to terminate other sessions:
+#              # Runtime > Manage Sessions > Terminate Other Sessions
+#     # socket.run(app, debug=True)
