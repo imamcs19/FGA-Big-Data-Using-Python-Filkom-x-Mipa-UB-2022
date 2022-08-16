@@ -138,6 +138,38 @@ def manipulate_tabel_CloundAI_Air(aksi):
 
     return str_info
 
+@app.route('/db/CloudAI_Air_Rev/<aksi>')
+def manipulate_tabel_CloundAI_Air_Rev(aksi):
+    conn = connect_db()
+    db = conn.cursor()
+
+    if aksi == 'c':
+        # create tabel
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS CloudAI_Air_Rev (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    suhu_dlm_celcius TEXT,
+                    humidity_kelembaban_dlm_persen TEXT,
+                    precipitation_curah_hujan_dlm_persen TEXT,
+                    wind_angin_dlm_km_per_jam TEXT,
+                    durasi_air_dlm_menit TEXT
+                )
+        """)
+        str_info = 'tabel berhasil dibuat :D'
+    elif aksi== 'd':
+        # hapus tabel
+        db.execute("""
+        DROP TABLE IF EXISTS CloudAI_Air_Rev
+        """)
+
+        str_info = 'tabel berhasil dihapus :D'
+
+    conn.commit()
+    db.close()
+    conn.close()
+
+    return str_info
+
 @app.route('/job', methods = ['POST', 'GET'])
 def get_time():
     from datetime import datetime
@@ -838,6 +870,15 @@ template_edit = """
 #     c = ''
 #     for i in range(10): # i = 0,1,..,9
 #         c +=str(i+1) + '  '
+
+#     return str(c)
+
+# # buatlah tampilan indeks looping 1..10 dengan new line (<br> dari tag html)
+# @app.route('/loop_new_line')
+# def loop_new_line():
+#     c = ''
+#     for i in range(10): # i = 0,1,..,9
+#         c +=str(i+1) + '<br>'
 
 #     return str(c)
 
@@ -2021,6 +2062,663 @@ def logout():
    # remove the name from the session if it is there
    session.pop('name', None)
    return redirect(url_for('index'))
+
+# ================================================================================
+# Untuk Pengmas 2022 | membuat tabel CloudAI_Air_Rev untuk Penentuan Durasi Pengairan / Penyiraman Tanaman
+# dengan menggunakan ELM dalam Ekosistem Cloud-AI
+#
+def pengmas2022_create_database():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS CloudAI_Air_Rev (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    suhu_dlm_celcius TEXT,
+                    humidity_kelembaban_dlm_persen TEXT,
+                    precipitation_curah_hujan_dlm_persen TEXT,
+                    wind_angin_dlm_km_per_jam TEXT,
+                    durasi_air_dlm_menit TEXT
+                )
+                """)
+
+    conn.commit()
+    conn.close()
+
+def pengmas2022_generate_data():
+    """Generate sintesis atau dummy data untuk percontohan."""
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute('SELECT * FROM CloudAI_Air_Rev')
+    entry = cur.fetchone()
+
+    # rs = db.execute("SELECT * FROM user order by id")
+    # datalist = rs.fetchall()
+
+    # if entry is None:
+    #     for i in range(1, 11):
+    #     cur.execute("""INSERT INTO CloudAI_Air_Rev (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES (?, ?, ?, ?, ?)""",
+    #                 (f"Suhu {i}", f"Kelembaban {i}", f"Hujan {i}", f"Angin {i}", f"Durasi {i}"))
+
+    if entry is None:
+        import numpy as np
+        import pandas as pd
+        import os.path
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+        # Misal skema dataset-nya seperti berikut: => Silahkan dimodifikasi sesuai case Anda
+        kolomFitur_X_plus_Target_Y = ['Suhu (X1)','Kelembaban (X2)', 'Curah Hujan (X3)','Angin (X4)','Durasi Air Dlm Menit (Y)']
+
+        # set bykData = 3*np.power(10,7)
+        bykData = 10
+        bykFitur = len(kolomFitur_X_plus_Target_Y)-1
+
+        # Interval atau Variasi nilai fitur
+        nilaiFitur_Suhu = [17,35]
+        nilaiFitur_Kelembaban = [70,90]
+        nilaiFitur_Curah_Hujan = [2,95]
+        nilaiFitur_Angin = [0,15]
+        labelTargetY = [0.0,90.0]
+
+        # generate isi dataset
+        content_dataGenerate = np.array([np.arange(bykData)]*(bykFitur+1)).T
+        df_gen = pd.DataFrame(content_dataGenerate, columns=kolomFitur_X_plus_Target_Y)
+
+        df_gen ['Suhu (X1)'] = np.random.randint(nilaiFitur_Suhu[0], nilaiFitur_Suhu[1], df_gen.shape[0])
+        df_gen ['Kelembaban (X2)'] = np.random.randint(nilaiFitur_Kelembaban[0], nilaiFitur_Kelembaban[1], df_gen.shape[0])
+        df_gen ['Curah Hujan (X3)'] = np.random.randint(nilaiFitur_Curah_Hujan[0], nilaiFitur_Curah_Hujan[1], df_gen.shape[0])
+        df_gen ['Angin (X4)'] = np.random.randint(nilaiFitur_Angin[0], nilaiFitur_Angin[1], df_gen.shape[0])
+        df_gen ['Durasi Air Dlm Menit (Y)'] = np.round(np.random.uniform(labelTargetY[0], labelTargetY[1], df_gen.shape[0]),2)
+
+
+
+        # save dataframe generate ke *.csv
+        import os
+        # print(os.path.expanduser("~"))
+        userhome = os.path.expanduser("~").split("/")[-1]
+        # print(userhome)
+
+        # file_name_data_generate = '/home/bigdatafga/mysite/static/data_contoh/Data_CloudAI_Air_Rev.csv'
+        # df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+
+        path = "/home/"+userhome+"/mysite/static/data_contoh"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # file_name_data_generate = 'static/data_contoh/Data_CloudAI_Air_Rev.csv'
+        # df_gen.to_csv(file_name_data_generate, encoding='utf-8', index=False)
+        url_file_name_data_generate = os.path.join(BASE_DIR, "static/data_contoh/Data_CloudAI_Air_Rev.csv")
+        df_gen.to_csv(url_file_name_data_generate, encoding='utf-8', index=False)
+
+        # read file *.csv dan tampilkan
+        # data_generate = pd.read_csv(file_name_data_generate)
+
+        url = os.path.join(BASE_DIR, "static/data_contoh/Data_CloudAI_Air_Rev.csv")
+
+        # Importing the dataset => ganti sesuai dengan case yg anda usulkan
+        dataset = pd.read_csv(url)
+        # X = dataset.iloc[:, :-1].values
+        # y = dataset.iloc[:, 1].values
+
+        def pushCSVdatasetToDB(x1,x2,x3,x4,y):
+            #inserting values inside the created table
+            # db = sqlite3.connect("data.db")
+
+            # conn = connect_db()
+            # cur = conn.cursor()
+
+            cmd = "INSERT INTO CloudAI_Air_Rev(suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES('{}','{}','{}','{}','{}')".format(x1,x2,x3,x4,y)
+            cur.execute(cmd)
+            conn.commit()
+
+        # CSV_to_SQLite3 dari file dataset
+        for i in range(0,len(dataset)):
+            pushCSVdatasetToDB(dataset.iloc[i][0],dataset.iloc[i][1],dataset.iloc[i][2],dataset.iloc[i][3],dataset.iloc[i][4])
+
+        # for i in range(1, 11):
+        #     cur.execute("""INSERT INTO CloudAI_Air_Rev (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam) VALUES (?, ?, ?, ?)""",
+        #             (f"Type {i}", f"Receipt {i}", f"Amount {i}", f"Description {i}"))
+    else:
+        ket_hasil = 'Tidak dilakukan Insert, karena Tabel tidak kosong'
+        print(ket_hasil)
+
+    # end - insert where tabel CloudAI_Air_Rev masih kosong
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+@app.route('/pengmas2022_crud')
+def pengmas2022_index():
+    return '<a href="/pengmas2022_list">Demo Menampilkan List dari Tabel + Support => Create, Read, Update, Delete (CRUD)</a>'
+
+@app.route('/pengmas2022_list')
+def pengmas2022_list():
+
+    # buat tabel dan generate data dummy
+    pengmas2022_create_database()
+    pengmas2022_generate_data()
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM CloudAI_Air_Rev")
+    rows = cur.fetchall()
+
+    conn.close()
+
+    #return render_template("list.html", rows=rows)
+    return render_template_string(template_list, rows=rows)
+
+
+@app.route('/pengmas2022_edit/<int:number>', methods=['GET', 'POST'])
+def pengmas2022_edit(number):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        item_id      = number
+        item_suhu    = request.form['suhu']
+        item_kelembaban = request.form['kelembaban']
+        item_hujan  = request.form['hujan']
+        item_angin = request.form['angin']
+        item_durasi = request.form['durasi']
+
+        # suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit
+
+        cur.execute("UPDATE CloudAI_Air_Rev SET suhu_dlm_celcius = ?, humidity_kelembaban_dlm_persen = ?, precipitation_curah_hujan_dlm_persen = ?, wind_angin_dlm_km_per_jam = ?, durasi_air_dlm_menit = ? WHERE id = ?",
+                    (item_suhu, item_kelembaban, item_hujan, item_angin, item_durasi, item_id))
+        conn.commit()
+
+        return redirect('/pengmas2022_list')
+
+    cur.execute("SELECT * FROM CloudAI_Air_Rev WHERE id = ?", (number,))
+    item = cur.fetchone()
+
+    conn.close()
+
+    #return render_template("edit.html", item=item)
+    return render_template_string(template_edit, item=item)
+
+@app.route('/pengmas2022_delete/<int:number>')
+def pengmas2022_delete(number):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM CloudAI_Air_Rev WHERE id = ?", (number,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/pengmas2022_list')
+
+@app.route('/pengmas2022_add', methods=['GET', 'POST'])
+def pengmas2022_add():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        # item_id      = number
+        item_suhu    = request.form['suhu']
+        item_kelembaban = request.form['kelembaban']
+        item_hujan  = request.form['hujan']
+        item_angin = request.form['angin']
+        item_durasi = request.form['durasi']
+
+        cur.execute("""INSERT INTO CloudAI_Air_Rev (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam, durasi_air_dlm_menit) VALUES (?, ?, ?, ?, ?)""",
+                    (item_suhu, item_kelembaban, item_hujan, item_angin, item_durasi))
+        conn.commit()
+
+        return redirect('/pengmas2022_list')
+
+    #return render_template("add.html", item=item)
+    return render_template_string(template_add)
+
+@app.route('/pengmas2022_add2')
+def pengmas2022_add2():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # get data dari iot API
+    import requests
+    # from datetime import datetime
+    # import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+
+    def F2C(f_in):
+        return (f_in - 32)* 5/9
+
+    def Kelvin2C(k_in):
+      return (k_in-273.15)
+
+    list_kota = ['Malang']
+
+
+    for nama_kota in list_kota:
+        #   each_list_link='http://api.weatherapi.com/v1/current.json?key=re2181c95fd6d746e9a1331323220104&q='+nama_kota
+        each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+        resp=requests.get(each_list_link)
+
+        # print(nama_kota)
+
+        #http_respone 200 means OK status
+        if resp.status_code==200:
+            resp=resp.json()
+            suhu = resp['current']['temp_c']
+            curah_hujan = resp['current']['precip_mm']
+            lembab = resp['current']['humidity']
+            angin = resp['current']['wind_mph']
+        else:
+            # print("Error")
+            suhu = '-'
+            curah_hujan = '-'
+            lembab = '-'
+            angin = '-'
+
+        # print(nama_kota, 'dengan suhu = ', round(float(suhu),2),'°C', end='\n')
+
+        cur.execute("""INSERT INTO CloudAI_Air_Rev (suhu_dlm_celcius, humidity_kelembaban_dlm_persen, precipitation_curah_hujan_dlm_persen, wind_angin_dlm_km_per_jam) VALUES (?, ?, ?, ?)""",
+                (suhu, lembab, curah_hujan, angin))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    return redirect('/pengmas2022_list')
+
+def pengmas2022_get_data_iot_api():
+    # get data dari iot API
+    import requests
+    # from datetime import datetime
+    # import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y %H:%M:%S'))
+
+    def F2C(f_in):
+        return (f_in - 32)* 5/9
+
+    def Kelvin2C(k_in):
+      return (k_in-273.15)
+
+    list_kota = ['Malang']
+
+
+    for nama_kota in list_kota:
+        #   each_list_link='http://api.weatherapi.com/v1/current.json?key=re2181c95fd6d746e9a1331323220104&q='+nama_kota
+        each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+        resp=requests.get(each_list_link)
+
+        # print(nama_kota)
+
+        #http_respone 200 means OK status
+        if resp.status_code==200:
+            resp=resp.json()
+            suhu = resp['current']['temp_c']
+            curah_hujan = resp['current']['precip_mm']
+            lembab = resp['current']['humidity']
+            angin = resp['current']['wind_mph']
+        else:
+            # print("Error")
+            suhu = '-'
+            curah_hujan = '-'
+            lembab = '-'
+            angin = '-'
+
+
+    return suhu, lembab, curah_hujan, angin
+
+@app.route('/pengmas2022_elm_train')
+def pengmas2022_elm_train():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    import os
+    import sys
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    url = os.path.join(BASE_DIR, "static/data_contoh/Data_CloudAI_Air_Rev.csv")
+
+    import pandas as pd
+    import numpy as np
+    import json
+
+    from flask import Response
+
+    from datetime import datetime
+    # from time import strftime
+    import pytz
+
+    persentase_data_training = 75
+    banyak_fitur = 4 # dari Suhu (X1),Kelembaban (X2),Curah Hujan (X3),Angin (X4),Durasi Air Dlm Menit (Y)
+    banyak_fitur_target = 1
+    banyak_hidden_neuron = 6
+    # print(persentase_data_training,banyak_fitur,banyak_hidden_neuron)
+
+    dataset = pd.read_csv(url)
+
+    # convert df to array np
+    arr_dataset = dataset.iloc[:,:].values
+    arr_df_idr_us = arr_dataset
+
+    # set nilai parameter ELM
+    # inisialisasi jumlah fitur (n) yang digunakan sebanyak banyak_fitur,
+    # sedangkan jumlah hidden neuron (m) sebanyak banyak_hidden_neuron,
+    # dan untuk data training sebanyak persentase_data_training dan data testing sebanyak 100 - persentase_data_training
+    n = banyak_fitur
+    m = banyak_hidden_neuron
+
+    byk_data = arr_df_idr_us.shape[0]
+    Ntrain = int(persentase_data_training*byk_data/100)
+    Ntest = byk_data - Ntrain
+
+    # Interval atau Variasi nilai fitur, sbg nilai min max
+    nilaiFitur_Suhu = [17,35]
+    nilaiFitur_Kelembaban = [70,90]
+    nilaiFitur_Curah_Hujan = [2,95]
+    nilaiFitur_Angin = [0,15]
+    labelTargetY = [0.0,90.0]
+
+    # tetapi untuk menyederhanakan proses normalisasi, digunakan set nilai min = 0 max = 100
+
+    #  Normalisasi data
+    # get_min = np.min(arr_df_idr_us)
+    # get_max = np.max(arr_df_idr_us)
+    get_min = 0
+    get_max = 100
+    lower_boundary,upper_boundary = 0.1,0.9
+    data_norm =(((arr_df_idr_us-get_min)/(get_max-get_min))*(upper_boundary-lower_boundary))+lower_boundary
+    # print('data norm: \n',data_norm)
+
+    data_normalisasi = data_norm
+
+    data_training = data_normalisasi[:int(
+        persentase_data_training*len(data_normalisasi)/100)]
+    data_testing = data_normalisasi[int(
+        persentase_data_training*len(data_normalisasi)/100):]
+
+    # print(data_training)
+    # Training
+    is_singular_matrix = True
+    while(is_singular_matrix):
+        bobot = np.random.rand(banyak_hidden_neuron, banyak_fitur)
+        #print("bobot", bobot)
+        bias = np.random.rand(banyak_hidden_neuron)
+        h = 1 / \
+            (1 + np.exp(-(np.dot(data_training[:, :banyak_fitur], np.transpose(bobot)) + bias)))
+
+        #print("h", h)
+        #print("h_transpose", np.transpose(h))
+        #print("transpose dot h", np.dot(np.transpose(h), h))
+
+        # cek matrik singular
+        cek_matrik = np.dot(np.transpose(h), h)
+        det_cek_matrik = np.linalg.det(cek_matrik)
+        if det_cek_matrik != 0:
+            #proceed
+
+        #if np.linalg.cond(cek_matrik) < 1/sys.float_info.epsilon:
+            # i = np.linalg.inv(cek_matrik)
+            is_singular_matrix = False
+        else:
+            is_singular_matrix = True
+
+
+    h_plus = np.dot(np.linalg.inv(cek_matrik), np.transpose(h))
+
+    # print("h_plus", h_plus)
+    output_weight = np.dot(h_plus, data_training[:, banyak_fitur])
+
+    # membuat name_unik2save utk simpan hasil training
+    name_unik2save = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y-%H-%M-%S'))
+    # hasil_txt_Ytrain_predict = arr_token_to_txt('filename_HasilTrain_'+name_unik2save+'.txt',arr_token_Ytrain_predict)
+
+    # simpan bobot_input, bias dan bobot_output
+    # set info_param
+    # af mewakili parameter activation function
+    # hd mewakili parameter jumlah_hidden
+    # fi mewakili jumlah fitur input yg diset
+    # ft mewakili jumlah fitur target
+    # elm_train memakili label train ELM-nya
+
+    af= 'sigmoid'
+    # af= 'tanh'
+
+
+    info_param = '-Ntrain-'+str(Ntrain)+'-Ntest-'+str(Ntest)+'-af-'+af+'-hd-'+str(m)+'-fi-'+str(n)+'-ft-'+str(banyak_fitur_target)
+
+    # /home/bigdatafga/mysite/static/simpan_model_elm
+
+    # save dataframe generate ke *.csv
+    # print(os.path.expanduser("~"))
+    userhome = os.path.expanduser("~").split("/")[-1]
+    # print(userhome)
+
+    path = "/home/"+userhome+"/mysite/static/simpan_model_elm"
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # url_file_name_data_generate = os.path.join(BASE_DIR, "static/simpan_model_elm/Data_CloudAI_Air_Rev.csv")
+    # df_gen.to_csv(url_file_name_data_generate, encoding='utf-8', index=False)
+
+    # nama_path_hasil = './HasilTrainNTest/'+name_unik2save+'/'
+    # nama_path_hasil = './HasilTrainNTest/'+name_unik2save
+    nama_path_hasil = "static/simpan_model_elm/"+name_unik2save
+    nama_file_csv_bobot_input = nama_path_hasil+info_param+'_bobot_input.csv'
+    nama_file_csv_bias = nama_path_hasil+info_param+'_bias.csv'
+    nama_file_csv_bobot_output = nama_path_hasil+info_param+'_bobot_output.csv'
+
+    bobot_input = bobot
+    bobot_output = output_weight
+
+    pd.DataFrame(bobot_input).to_csv(os.path.join(BASE_DIR, nama_file_csv_bobot_input), header=None, index=None)
+    pd.DataFrame(bias).to_csv(os.path.join(BASE_DIR, nama_file_csv_bias), header=None, index=None)
+    pd.DataFrame(bobot_output).to_csv(os.path.join(BASE_DIR, nama_file_csv_bobot_output), header=None, index=None)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return redirect('/pengmas2022_list')
+
+# cara akses, misal: http://imamcs.pythonanywhere.com/api/fp/3.0/?a=70&b=3&c=2
+# @app.route("/api/pengmas2022", methods=["GET"])
+@app.route("/api/pengmas2022")
+def api_pengmas2022_elm_test():
+    import os
+    import sys
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # url = os.path.join(BASE_DIR, "static/simpan_model_elm/dataset_dump_tiny.csv")
+
+    import pandas as pd
+    import numpy as np
+    import json
+    # from django.http import HttpResponse
+    from flask import Response
+    from datetime import datetime
+
+    userhome = os.path.expanduser("~").split("/")[-1]
+    # print(userhome)
+
+    path = "/home/"+userhome+"/mysite/static/simpan_model_elm"
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+    folder_path = path
+    # penjelasan makna [::-1] => mulai dari end sampai awal, down increment dengan 1
+    # contoh:
+    # >>> 'abcdefghijklm'[::3]  # beginning to end, counting by 3
+    # 'adgjm'
+    # >>> 'abcdefghijklm'[::-3] # end to beginning, counting down by 3
+    # 'mjgda'
+
+    list_file_last_modified=os.listdir(os.path.join(BASE_DIR,folder_path))[::-1][:]
+    # print(list_file_last_modified)
+
+    if(len(list_file_last_modified)>0):
+        # 15-08-2022-22-42-49
+        list_file_last_modified.sort(key=lambda x: datetime.strptime(x[:19], '%d-%m-%Y-%H-%M-%S'))
+        # print(list_file_last_modified)
+
+        # get 3 file by date terbaru
+        hasil_get_3_file_by_date_terbaru = list_file_last_modified[-3:]
+        # print(hasil_get_3_file_by_date_terbaru)
+
+        hasil_str = ''
+        for idx_get_filename in range(len(hasil_get_3_file_by_date_terbaru)):
+            hasil_str += ''.join(str(hasil_get_3_file_by_date_terbaru[idx_get_filename]))
+            hasil_str += '<br>'
+        # return hasil_str
+
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bobot_input.csv
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bias.csv
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bobot_output.csv
+        nama_file_dasar_base_name_unik2save_using_date = str(hasil_get_3_file_by_date_terbaru[0])[:62]
+
+        # Cara baca file csv diatas
+        nama_file_csv_bobot_input = nama_file_dasar_base_name_unik2save_using_date + '_bobot_input.csv'
+        baca_bobot_input = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bobot_input), header=None).values
+        # print('baca_bobot_input: \n', baca_bobot_input,'\n')
+
+        nama_file_csv_bias = nama_file_dasar_base_name_unik2save_using_date + '_bias.csv'
+        baca_bias = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bias),  header=None).values.flat[:]
+        # print('baca bias: \n', baca_bias,'\n')
+
+        nama_file_csv_bobot_output = nama_file_dasar_base_name_unik2save_using_date + '_bobot_output.csv'
+        baca_bobot_output = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bobot_output), header=None).values
+        # print('baca_bobot_output: \n', baca_bobot_output,'\n')
+
+        # return ''.join(str(baca_bobot_input))
+
+
+
+        # Testing
+        # =============
+        #
+        # get data dari iot_api sebagai data test
+        # suhu, curah_hujan, lembab, angin
+        data_testing = np.array(pengmas2022_get_data_iot_api())
+
+        return ''.join(str(data_testing))
+
+
+        # #  Normalisasi data testing
+        # # get_min = np.min(arr_df_idr_us)
+        # # get_max = np.max(arr_df_idr_us)
+        # get_min = 0
+        # get_max = 100
+        # lower_boundary,upper_boundary = 0.1,0.9
+        # data_testing_norm =(((data_testing-get_min)/(get_max-get_min))*(upper_boundary-lower_boundary))+lower_boundary
+
+
+
+        # h = 1 / \
+        #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(bobot)) + bias)))
+        # predict = np.dot(h, output_weight)
+        # predict = (predict * (maksimum - minimum) + minimum)
+
+        # # MAPE
+        # aktual = np.array(hasil_fitur[int(
+        #     persentase_data_training*len(data_normalisasi)/100):, banyak_fitur]).tolist()
+        # mape = np.sum(np.abs(((aktual - predict)/aktual)*100))/len(predict)
+        # prediksi = predict.tolist()
+        # # print(prediksi, 'vs', aktual)
+        # # response = json.dumps({'y_aktual': aktual, 'y_prediksi': prediksi, 'mape': mape})
+
+        # # return Response(response, content_type='text/json')
+        # # return Response(response, content_type='application/json')
+        # #return Response(response, content_type='text/xml')
+
+
+        # response = jsonify({'y_aktual': aktual, 'y_prediksi': prediksi, 'mape': mape})
+
+
+        # # Enable Access-Control-Allow-Origin
+        # response.headers.add("Access-Control-Allow-Origin", "*")
+        # # response.headers.add("access-control-allow-credentials","false")
+        # # response.headers.add("access-control-allow-methods","GET, POST")
+
+
+        # # r = Response(response, status=200, mimetype="application/json")
+        # # r.headers["Content-Type"] = "application/json; charset=utf-8"
+        # return response
+    else:
+        default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
+        response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+
+
+        # Enable Access-Control-Allow-Origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        # response.headers.add("access-control-allow-credentials","false")
+        # response.headers.add("access-control-allow-methods","GET, POST")
+
+
+        # r = Response(response, status=200, mimetype="application/json")
+        # r.headers["Content-Type"] = "application/json; charset=utf-8"
+        return response
+
+
+template_list = """
+<h2>Menampilkan Data CloudAI Air + Support Create, Read, Update, Delete (CRUD)</h2>
+<a href="{{ url_for( "pengmas2022_add" ) }}">Tambah Data</a> |
+<a href="{{ url_for( "pengmas2022_add2" ) }}">Tambah Data dari iot_api (tanpa nilai Durasi Waktu)</a> |
+<a href="{{ url_for( "pengmas2022_elm_train" ) }}">Proses Training data dgn ELM</a>
+{% if rows %}
+<table border="1">
+    <thead>
+        <td>No</td>
+        <td>Suhu (°C)</td>
+        <td>Kelembaban (%)</td>
+        <td>Curah Hujan (%)</td>
+        <td>Kecepatan Angin (Km/Jam)</td>
+        <td>Durasi Waktu Pengairan / Penyiraman (Menit)</td>
+    </thead>
+
+    {% for row in rows %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{row[1]}}</td>
+        <td>{{row[2]}}</td>
+        <td>{{row[3]}}</td>
+        <td>{{row[4]}}</td>
+        <td>{{row[5]}}</td>
+        <td>
+            <a href="{{ url_for( "pengmas2022_edit", number=row[0] ) }}">Edit</a> |
+            <a href="{{ url_for( "pengmas2022_delete", number=row[0] ) }}">Hapus</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+Empty</br>
+{% endif %}
+"""
+
+template_add = """
+<h1>Tambah Data CloudAI Air</h1>
+<form method="POST" action="{{ url_for( "pengmas2022_add" ) }}">
+    Suhu: <input name="suhu" value=""/></br>
+    Kelembaban: <input name="kelembaban" value=""/></br>
+    Curah Hujan: <input name="hujan" value=""/></br>
+    Kecepatan Angin: <input name="angin" value=""/></br>
+    Durasi Waktu Pengairan / Penyiraman: <input name="durasi" value=""/></br>
+    <button>Simpan Data</button></br>
+</form>
+"""
+
+template_edit = """
+<h1>Edit Data CloudAI Air</h1>
+<form method="POST" action="{{ url_for( "pengmas2022_edit", number=item[0] ) }}">
+    Suhu: <input name="suhu" value="{{item[1]}}"/></br>
+    Kelembaban: <input name="kelembaban" value="{{item[2]}}"/></br>
+    Curah Hujan: <input name="hujan" value="{{item[3]}}"/></br>
+    Kecepatan Angin: <input name="angin" value="{{item[4]}}"/></br>
+    Durasi Waktu Pengairan / Penyiraman: <input name="durasi" value="{{item[5]}}"/></br>
+    <button>Simpan Update Data</button></br>
+</form>
+"""
 
 # if __name__ == '__main__':
 #     #import os
