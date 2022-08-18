@@ -905,11 +905,6 @@ template_edit = """
 def index():
     return redirect(url_for("login"))
 
-@app.route('/menu')
-def menugrafkom():
-    return render_template('launchpad_menu.html')
-
-
 @app.route("/login",methods=["GET", "POST"])
 def login():
   conn = connect_db()
@@ -2190,6 +2185,102 @@ def pengmas2022_generate_data():
     cur.close()
     conn.close()
 
+@app.route('/menu')
+def pengmas2022_menu():
+   return render_template("launchpad_menu3.html")
+   #return render_template("launchpad_menu2.html")
+   #return render_template("launchpad_menu.html")
+
+@app.route('/pengmas2022')
+def pengmas2022():
+    # get data dari iot API
+    import requests
+    from datetime import datetime
+    import pytz
+    # Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%A, %Y-%m-%d %H:%M'))
+    Date = str(datetime.today().astimezone(pytz.timezone('Asia/Jakarta')).strftime('%A, %d %m %Y, pukul %H:%M'))
+
+    WeekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    NamaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu', 'Ahad/Minggu']
+
+    # get_indeks_hari
+    get_indeks_hari = 0
+    loop_init = 0
+    get_hari_ini_dlm_eng = Date.split(",")[0]
+    for i in WeekDays:
+        if i == get_hari_ini_dlm_eng:
+            get_indeks_hari = loop_init
+            break
+        loop_init +=1
+    Date = Date.replace(WeekDays[get_indeks_hari],NamaHari[get_indeks_hari])
+
+    def F2C(f_in):
+        return (f_in - 32)* 5/9
+
+    def Kelvin2C(k_in):
+      return (k_in-273.15)
+
+    list_kota = ['Malang']
+
+
+    for nama_kota in list_kota:
+        #   each_list_link='http://api.weatherapi.com/v1/current.json?key=re2181c95fd6d746e9a1331323220104&q='+nama_kota
+        each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
+        resp=requests.get(each_list_link)
+
+        # print(nama_kota)
+
+        #http_respone 200 means OK status
+        if resp.status_code==200:
+            resp=resp.json()
+            suhu = resp['current']['temp_c']
+            curah_hujan = resp['current']['precip_mm']
+            lembab = resp['current']['humidity']
+            angin = resp['current']['wind_mph']
+        else:
+            # print("Error"), dgn menyiapkan sintesis resp
+            # resp = '''
+            # {
+            #   "location": {
+            #     "name": "Malang",
+            #     "region": "East Java",
+            #     "country": "Indonesia",
+            #     "lat": -7.4,
+            #     "lon": 112.7,
+            #     "tz_id": "Asia/Jakarta",
+            #     "localtime_epoch": 1660695399,
+            #     "localtime": '''+Date+'''
+            #   },
+            #   "current": {
+            #     "temp_c": '-',
+            #     "condition": {},
+            #     "wind_mph": '-',
+            #     "precip_mm": '-',
+            #     "humidity": '-',
+            #     "uv": '-'
+            #   }
+            # }
+            # '''
+
+            resp ='{"location":{"name":"Malang","region":"East Java","country":"Indonesia","lat":-7.4,"lon":112.7,"tz_id":"Asia/Jakarta","localtime_epoch":1660696463,"localtime":"'+Date+'"},"current":{"temp_c":25.0,"condition":{},"wind_mph":2.2,"precip_mm":0.1,"humidity":77,"uv":5.0}}'
+
+            # data = json.dumps(data) # dict to string
+            # data = json.loads(data) # string to json
+
+            # resp = jsonify(resp)
+            resp = json.loads(resp)
+            suhu = resp['current']['temp_c']
+            curah_hujan = resp['current']['precip_mm']
+            lembab = resp['current']['humidity']
+            angin = resp['current']['wind_mph']
+
+            # suhu = '-'
+            # curah_hujan = '-'
+            # lembab = '-'
+            # angin = '-'
+
+    return render_template("infografis_cloudAI.html", result = resp, celcius = suhu, date = Date)
+
 @app.route('/pengmas2022_crud')
 def pengmas2022_index():
     return '<a href="/pengmas2022_list">Demo Menampilkan List dari Tabel + Support => Create, Read, Update, Delete (CRUD)</a>'
@@ -2601,49 +2692,42 @@ def api_pengmas2022_elm_test():
         # suhu, curah_hujan, lembab, angin
         data_testing = np.array(pengmas2022_get_data_iot_api())
 
-        return ''.join(str(data_testing))
+        # return ''.join(str(data_testing))
+
+        banyak_fitur = 4 # dari Suhu (X1),Kelembaban (X2),Curah Hujan (X3),Angin (X4),Durasi Air Dlm Menit (Y)
 
 
-        # #  Normalisasi data testing
-        # # get_min = np.min(arr_df_idr_us)
-        # # get_max = np.max(arr_df_idr_us)
-        # get_min = 0
-        # get_max = 100
-        # lower_boundary,upper_boundary = 0.1,0.9
-        # data_testing_norm =(((data_testing-get_min)/(get_max-get_min))*(upper_boundary-lower_boundary))+lower_boundary
+        #  Normalisasi data testing
+        # get_min = np.min(arr_df_idr_us)
+        # get_max = np.max(arr_df_idr_us)
+        get_min = 0
+        get_max = 100
+        lower_boundary,upper_boundary = 0.1,0.9
+        data_testing_norm =(((data_testing-get_min)/(get_max-get_min))*(upper_boundary-lower_boundary))+lower_boundary
 
 
 
         # h = 1 / \
-        #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(bobot)) + bias)))
-        # predict = np.dot(h, output_weight)
-        # predict = (predict * (maksimum - minimum) + minimum)
+        #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(baca_bobot_input)) + baca_bias)))
+        h = 1 /(1 + np.exp(-(np.dot(data_testing, np.transpose(baca_bobot_input)) + baca_bias)))
+        predict = np.dot(h, baca_bobot_output)
+        predict_denorm = (((predict - lower_boundary)/(upper_boundary-lower_boundary))*(get_max-get_min))+get_min
 
-        # # MAPE
-        # aktual = np.array(hasil_fitur[int(
-        #     persentase_data_training*len(data_normalisasi)/100):, banyak_fitur]).tolist()
-        # mape = np.sum(np.abs(((aktual - predict)/aktual)*100))/len(predict)
-        # prediksi = predict.tolist()
-        # # print(prediksi, 'vs', aktual)
-        # # response = json.dumps({'y_aktual': aktual, 'y_prediksi': prediksi, 'mape': mape})
+        if predict_denorm.item() > 60:
+            durasi_final = 60
 
-        # # return Response(response, content_type='text/json')
-        # # return Response(response, content_type='application/json')
-        # #return Response(response, content_type='text/xml')
+        response = jsonify({'durasi': durasi_final, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
-        # response = jsonify({'y_aktual': aktual, 'y_prediksi': prediksi, 'mape': mape})
+        # Enable Access-Control-Allow-Origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        # response.headers.add("access-control-allow-credentials","false")
+        # response.headers.add("access-control-allow-methods","GET, POST")
 
 
-        # # Enable Access-Control-Allow-Origin
-        # response.headers.add("Access-Control-Allow-Origin", "*")
-        # # response.headers.add("access-control-allow-credentials","false")
-        # # response.headers.add("access-control-allow-methods","GET, POST")
-
-
-        # # r = Response(response, status=200, mimetype="application/json")
-        # # r.headers["Content-Type"] = "application/json; charset=utf-8"
-        # return response
+        # r = Response(response, status=200, mimetype="application/json")
+        # r.headers["Content-Type"] = "application/json; charset=utf-8"
+        return response
     else:
         default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
         response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
