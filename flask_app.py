@@ -2159,7 +2159,7 @@ def qr_student():
         name = request.form['name']
         nim = request.form['nim']
         UUID = str(uuid.uuid4())
-        qr_code_mark = "static/tmp_qr/{}.png".format(UUID)
+        qr_code_mark = "static/img/tmp_qr/{}.png".format(UUID)
         student = Student(nim=nim, name=name, qr_code=qr_code_mark)
         student.save()
 
