@@ -17,6 +17,9 @@ from flask import json, make_response, render_template_string
 import sqlite3
 from flask_cors import CORS
 
+from flask import send_file
+from flask_qrcode import QRcode
+
 from requests.packages.urllib3.exceptions import ProtocolError
 from collections import OrderedDict
 from operator import itemgetter
@@ -43,18 +46,70 @@ import os
 # from apscheduler.schedulers.background import BackgroundScheduler
 from flask_crontab import Crontab
 
+from flask_gtts import gtts
+
+# from flask_app import static
+
 # untuk sqlite admin
 # from flask_sqlite_admin.core import sqliteAdminBlueprint, required_roles
 
-
 app = Flask(__name__, static_folder='static')
 crontab = Crontab(app)
+gtts(app)
+qrcode = QRcode(app)
 
 # sqliteAdminBP = sqliteAdminBlueprint(
 #   dbPath = 'data.db',
 #   decorator = required_roles('admin', 'user')
 # )
 # app.register_blueprint(sqliteAdminBP, url_prefix='/sql')
+
+# Ref:
+# Big Thanks to,
+# https://towardsdatascience.com/building-a-barcode-qr-code-reader-using-python-360e22dfb6e5
+# https://github.com/piinalpin/absent-qrcode-python
+# ==============================================================
+#
+
+# from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+# import os
+
+project_dir = os.path.dirname(os.path.abspath(__file__))
+database_file = "sqlite:///{}".format(os.path.join(project_dir, "static/qr_app/db/database.db"))
+
+# app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = database_file
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+
+# DB kedua untuk qr_app :D
+db_qr = SQLAlchemy(app)
+migrate = Migrate(app, db_qr)
+
+# Operasi untuk migrate
+# flask db_qr init
+# flask db_qr migrate
+# flask db_qr upgrade
+
+
+
+# from static.qr_app.controller.AppController import *
+
+# from static.qr_app import qr_app
+# from static.qr_app import app
+
+# from static.qr_app.model.StudentModel import Student
+# from static.qr_app.model.AttendanceModel import Attendance
+from static.qr_app.model.StudentModel import Student
+from static.qr_app.model.AttendanceModel import Attendance
+
+# static/qr_app/module/Camera.py
+# from static.qr_app.module.Camera import Scanner
+from static.qr_app.module.Camera import Scanner
+
+import pyqrcode
+import uuid
 
 
 # CORS(app)
@@ -66,6 +121,10 @@ CORS(app, resources=r'/api/*')
 app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
+
+@app.route('/tts')
+def tts():
+    return render_template('gtts.html')
 
 @app.route('/db/<aksi>')
 def manipulate_tabel(aksi):
@@ -2057,6 +2116,115 @@ def logout():
    # remove the name from the session if it is there
    session.pop('name', None)
    return redirect(url_for('index'))
+
+
+# ================
+# Egonomic Project
+
+# @app.route('/qrcode')
+# def qrcode():
+#     return 'scan QRCode'
+
+@app.route("/in")
+def index_qrcode():
+    return render_template("qrcode.html")
+
+
+@app.route("/qrcode", methods=["GET"])
+def get_qrcode():
+    # please get /qrcode?data=<qrcode_data>
+    data = request.args.get("data", "")
+    return send_file(qrcode(data, mode="raw"), mimetype="image/png")
+
+
+# @app.route('/qr_index')
+# def qr_index():
+#     attendance = Attendance.getAll()
+#     return render_template("qr_scan.html", data=enumerate(attendance, 1))
+
+@app.route('/qr_index')
+def qr_index():
+    attendance = Attendance.getAll()
+    return render_template("qr_scan2.html", data=enumerate(attendance, 1))
+
+
+@app.route("/qr_scan", methods=["GET"])
+def qr_scan():
+    return Response(scanner(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route("/qr_student", methods=["GET", "POST"])
+def qr_student():
+    if request.method == "POST":
+        name = request.form['name']
+        nim = request.form['nim']
+        UUID = str(uuid.uuid4())
+        qr_code_mark = "static/tmp_qr/{}.png".format(UUID)
+        student = Student(nim=nim, name=name, qr_code=qr_code_mark)
+        student.save()
+
+        import qrcode
+
+        # # /qrcode
+        # qrcode_img = qrcode.make(student.id)
+        # # buf = io.BytesIO()
+        # buf_qrcode = BytesIO()
+        # qrcode_img.save(buf_qrcode)
+        # buf_qrcode.seek(0)
+        # # return send_file(buf_qrcode, mimetype='image/jpeg')
+
+        qrcode_img = qrcode.make(student.id)
+        # qrcode_img = qrcode(student.id)
+        # canvas = Image.new('RGB', (290,290), 'white')
+        # draw = ImageDraw.Draw(canvas)
+        # canvas.paste(qrcode_img)
+        # fname = f'qr_code_{self.name}.png'
+        fname = f'static/img/tmp_qr/qr_code_{student.id}.png'.format(UUID)
+        buffer = BytesIO()
+        # canvas.save(buffer,'PNG')
+        # qrcode_img.save(fname, File(buffer), save=False)
+        # qrcode_img.save(fname, buffer, save=False)
+        # qrcode_img.save(buffer)
+
+        import os.path
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        url_file_name_qrcode = os.path.join(BASE_DIR, fname)
+
+        qrcode_img.save(url_file_name_qrcode, format="PNG")
+        # canvas.close()
+        # super().save(*args, **kwargs)
+
+        # img = pyqrcode.create(student.id, error="L", mode="binary", version=5)
+        # img.png(qr_code, scale=10)
+    students = Student.getAll()
+    return render_template("qr_student.html", data=enumerate(students, 1))
+
+
+def scanner():
+    camera = Scanner()
+    while True:
+        frame = camera.get_video_frame()
+
+        if frame is not None:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            break
+
+
+# ================================================================================
+# Untuk Penelitian 2022 | Modeling data real terkait seseorang yang pernah terpapar Covid-19 dan varian barunya
+# dengan menggunakan Algoritma Quantum meta-Deep AI
+#
+
+# Algoritma meta-Deep AI
+@app.route('/qumedea')
+def riset2022():
+    return 'Hello Algoritma Quantum meta-Deep AI'
+
+
 
 # ================================================================================
 # Untuk Pengmas 2022 | membuat tabel CloudAI_Air_Rev untuk Penentuan Durasi Pengairan / Penyiraman Tanaman
