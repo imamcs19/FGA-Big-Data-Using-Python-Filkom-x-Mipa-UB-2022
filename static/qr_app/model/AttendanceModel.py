@@ -1,7 +1,13 @@
 import sys
 # append current python modules' folder path
 # example: need to import module.py present in '/path/to/python/module/not/in/syspath'
-sys.path.append('/home/bigdatafga/mysite')
+# sys.path.append('/home/bigdatafga/mysite')
+
+import os
+userhome = os.path.expanduser("~").split("/")[-1]
+mypath = "/home/"+userhome+"/mysite"
+
+sys.path.append(mypath)
 
 # from static.qr_app import db
 # from static.qr_app.model.StudentModel import Student
