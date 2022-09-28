@@ -2152,6 +2152,13 @@ def qr_index():
 def qr_scan():
     return Response(scanner(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/video',methods=['GET', 'POST'])
+def video():
+    vid = cv.VideoCapture(0)
+    success, dfs = vid.read()
+    if success:
+        return Response(face_detector(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route("/qr_student", methods=["GET", "POST"])
 def qr_student():
@@ -2355,9 +2362,46 @@ def pengmas2022_generate_data():
 
 @app.route('/menu')
 def pengmas2022_menu():
-   return render_template("launchpad_menu3.html")
-   #return render_template("launchpad_menu2.html")
-   #return render_template("launchpad_menu.html")
+    return render_template("launchpad_menu3.html")
+    #return render_template("launchpad_menu2.html")
+    #return render_template("launchpad_menu.html")
+
+# @app.route('/vidEdu1')
+# def pengmas2022_vidEdu1():
+#     template_view = '''
+#     <div class="col-sm-3">
+#         <h3 class="box-title m-b-0">Popup with Youtube Video</h3>
+#         <small>You can use youtube video with popup just add class <code>popup-youtube</code></small>
+#         <br>
+#         <br> <a class="popup-youtube btn btn-danger" href="www.youtube.com/watch?v=Bp49uOYMNrk">Open YouTube video</a>
+#         <br>
+#     </div>
+#     '''
+
+#     return render_template_string(template_view)
+
+# @app.route('/vidEdu2')
+# def pengmas2022_vidEdu2():
+#     return render_template("launchpad_menu3.html")
+
+@app.route('/pengmas2022_ppt1')
+def pengmas2022_ppt1():
+    # template_view = '''
+    # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=3000" frameborder="0" width="1280" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    # '''
+    # template_view = '''
+    # <div class="col-sm-3">
+    # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=60000" frameborder="0" width="640" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    # </div>
+    # '''
+    template_view = '''
+    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=60000" frameborder="0" width="880" height="489" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    '''
+
+    return render_template_string(template_view)
+    # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=3000" frameborder="0" width="1280" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+
 
 @app.route('/pengmas2022')
 def pengmas2022():
@@ -2371,6 +2415,8 @@ def pengmas2022():
     WeekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     NamaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu', 'Ahad/Minggu']
 
+    NamaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
     # get_indeks_hari
     get_indeks_hari = 0
     loop_init = 0
@@ -2381,6 +2427,16 @@ def pengmas2022():
             break
         loop_init +=1
     Date = Date.replace(WeekDays[get_indeks_hari],NamaHari[get_indeks_hari])
+
+    # get_indeks_bulan
+    get_indeks_bulan = 0
+    get_tgl = Date.split(",")[1].split(" ")[1]
+    get_bulan_ini_dlm_eng = Date.split(",")[1].split(" ")[2]
+    for i, get_nama_bulan in enumerate(NamaBulan):
+        if i == int(get_bulan_ini_dlm_eng):
+            get_indeks_bulan = i
+            break
+    Date = Date.replace(get_tgl+' '+get_bulan_ini_dlm_eng+' ',get_tgl+' '+NamaBulan[get_indeks_bulan-1]+' ')
 
     def F2C(f_in):
         return (f_in - 32)* 5/9
@@ -2396,12 +2452,16 @@ def pengmas2022():
         each_list_link='http://api.weatherapi.com/v1/current.json?key=2181c95fd6d746e9a1331323220104&q='+nama_kota
         resp=requests.get(each_list_link)
 
+
+
         # print(nama_kota)
 
         #http_respone 200 means OK status
         if resp.status_code==200:
             resp=resp.json()
             suhu = resp['current']['temp_c']
+            # resp['current']['condition'] = {"Cerah Berawan"}
+            kondisi = resp['current']['condition']
             curah_hujan = resp['current']['precip_mm']
             lembab = resp['current']['humidity']
             angin = resp['current']['wind_mph']
@@ -2438,6 +2498,8 @@ def pengmas2022():
             # resp = jsonify(resp)
             resp = json.loads(resp)
             suhu = resp['current']['temp_c']
+            # resp['current']['condition'] = {"Cerah Berawan"}
+            kondisi = resp['current']['condition']
             curah_hujan = resp['current']['precip_mm']
             lembab = resp['current']['humidity']
             angin = resp['current']['wind_mph']
@@ -2447,7 +2509,150 @@ def pengmas2022():
             # lembab = '-'
             # angin = '-'
 
-    return render_template("infografis_cloudAI.html", result = resp, celcius = suhu, date = Date)
+    # get durasi irigasi
+    # resp2 = requests.get('https://bigdatafga.pythonanywhere.com/api/pengmas2022')
+    # resp2 = requests.get('https://imamcs.pythonanywhere.com/api/fp/3.0/?a=70&b=3&c=2')
+
+    # resp2 = api_pengmas2022_elm_test()
+    # resp2 = resp2.json()
+
+
+    import os
+    import sys
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # url = os.path.join(BASE_DIR, "static/simpan_model_elm/dataset_dump_tiny.csv")
+
+    import pandas as pd
+    import numpy as np
+    import json
+    # from django.http import HttpResponse
+    from flask import Response
+    from datetime import datetime
+
+    userhome = os.path.expanduser("~").split("/")[-1]
+    # print(userhome)
+
+    path = "/home/"+userhome+"/mysite/static/simpan_model_elm"
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+    folder_path = path
+    # penjelasan makna [::-1] => mulai dari end sampai awal, down increment dengan 1
+    # contoh:
+    # >>> 'abcdefghijklm'[::3]  # beginning to end, counting by 3
+    # 'adgjm'
+    # >>> 'abcdefghijklm'[::-3] # end to beginning, counting down by 3
+    # 'mjgda'
+
+    list_file_last_modified=os.listdir(os.path.join(BASE_DIR,folder_path))[::-1][:]
+    # print(list_file_last_modified)
+
+    if(len(list_file_last_modified)>0):
+        # 15-08-2022-22-42-49
+        list_file_last_modified.sort(key=lambda x: datetime.strptime(x[:19], '%d-%m-%Y-%H-%M-%S'))
+        # print(list_file_last_modified)
+
+        # get 3 file by date terbaru
+        hasil_get_3_file_by_date_terbaru = list_file_last_modified[-3:]
+        # print(hasil_get_3_file_by_date_terbaru)
+
+        hasil_str = ''
+        for idx_get_filename in range(len(hasil_get_3_file_by_date_terbaru)):
+            hasil_str += ''.join(str(hasil_get_3_file_by_date_terbaru[idx_get_filename]))
+            hasil_str += '<br>'
+        # return hasil_str
+
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bobot_input.csv
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bias.csv
+        # 16-08-2022-07-59-24-Ntrain-7-Ntest-3-af-sigmoid-hd-6-fi-4-ft-1_bobot_output.csv
+        nama_file_dasar_base_name_unik2save_using_date = str(hasil_get_3_file_by_date_terbaru[0])[:62]
+
+        # Cara baca file csv diatas
+        nama_file_csv_bobot_input = nama_file_dasar_base_name_unik2save_using_date + '_bobot_input.csv'
+        baca_bobot_input = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bobot_input), header=None).values
+        # print('baca_bobot_input: \n', baca_bobot_input,'\n')
+
+        nama_file_csv_bias = nama_file_dasar_base_name_unik2save_using_date + '_bias.csv'
+        baca_bias = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bias),  header=None).values.flat[:]
+        # print('baca bias: \n', baca_bias,'\n')
+
+        nama_file_csv_bobot_output = nama_file_dasar_base_name_unik2save_using_date + '_bobot_output.csv'
+        baca_bobot_output = pd.read_csv(os.path.join(BASE_DIR, "static/simpan_model_elm/"+nama_file_csv_bobot_output), header=None).values
+        # print('baca_bobot_output: \n', baca_bobot_output,'\n')
+
+        # return ''.join(str(baca_bobot_input))
+
+
+
+        # Testing
+        # =============
+        #
+        # get data dari iot_api sebagai data test
+        # suhu, curah_hujan, lembab, angin
+        data_testing = np.array(pengmas2022_get_data_iot_api())
+
+        # return ''.join(str(data_testing))
+
+        banyak_fitur = 4 # dari Suhu (X1),Kelembaban (X2),Curah Hujan (X3),Angin (X4),Durasi Air Dlm Menit (Y)
+
+
+        #  Normalisasi data testing
+        # get_min = np.min(arr_df_idr_us)
+        # get_max = np.max(arr_df_idr_us)
+        get_min = 0
+        get_max = 100
+        lower_boundary,upper_boundary = 0.1,0.9
+        data_testing_norm =(((data_testing-get_min)/(get_max-get_min))*(upper_boundary-lower_boundary))+lower_boundary
+
+
+
+        # h = 1 / \
+        #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(baca_bobot_input)) + baca_bias)))
+        h = 1 /(1 + np.exp(-(np.dot(data_testing, np.transpose(baca_bobot_input)) + baca_bias)))
+        predict = np.dot(h, baca_bobot_output)
+        predict_denorm = (((predict - lower_boundary)/(upper_boundary-lower_boundary))*(get_max-get_min))+get_min
+
+        hasil_rekomendasi_durasi = predict_denorm.item()
+        if predict_denorm.item() > 60:
+            durasi_final = 60
+            hasil_rekomendasi_durasi = durasi_final
+
+
+
+        response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+
+
+        # Enable Access-Control-Allow-Origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        # return response
+    else:
+        default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
+        hasil_rekomendasi_durasi = default_rekomendasi_standar
+        response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+
+
+        # Enable Access-Control-Allow-Origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        # return response
+
+
+    # if resp2.status_code==200:
+    #     resp2=resp2.json()
+    # else:
+    #     # print("Error"), dgn menyiapkan sintesis resp2
+    #     # {
+    #     #   "durasi": 60,
+    #     #   "keterangan": "PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang",
+    #     #   "satuan": "menit"
+    #     # }
+
+    #     resp2 ='{"durasi":60,"keterangan":"PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang","satuan":"menit"}'
+    #     # resp2 ='{"mape":7.678250359881673,"y_aktual":[65000,65000,65000],"y_prediksi":[70497.38469675701,69750.32426425672,69724.87924075553]}'
+
+
+    return render_template("infografis_cloudAI.html", result = resp, celcius = suhu, date = Date, result2 = hasil_rekomendasi_durasi)
 
 @app.route('/pengmas2022_crud')
 def pengmas2022_index():
@@ -2881,10 +3086,12 @@ def api_pengmas2022_elm_test():
         predict = np.dot(h, baca_bobot_output)
         predict_denorm = (((predict - lower_boundary)/(upper_boundary-lower_boundary))*(get_max-get_min))+get_min
 
+        hasil_rekomendasi_durasi = predict_denorm.item()
         if predict_denorm.item() > 60:
             durasi_final = 60
+            hasil_rekomendasi_durasi = durasi_final
 
-        response = jsonify({'durasi': durasi_final, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
         # Enable Access-Control-Allow-Origin
@@ -2898,6 +3105,7 @@ def api_pengmas2022_elm_test():
         return response
     else:
         default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
+        hasil_rekomendasi_durasi = default_rekomendasi_standar
         response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
