@@ -26,6 +26,11 @@
 <script type="text/javascript" src="{{ url_for('static', filename = 'js/dashboard1.js') }}"></script>
 <!-- Custom tab JavaScript -->
 <script type="text/javascript" src="{{ url_for('static', filename = 'js/cbpFWTabs.js') }}"></script>
+
+<!-- Magnific popup JavaScript -->
+<script type="text/javascript" src="{{ url_for('static', filename = 'js/js_popup/jquery.magnific-popup.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename = 'js/js_popup/jquery.magnific-popup-init.js') }}"></script>
+
 <script type="text/javascript" >
 (function() {
     [].slice.call(document.querySelectorAll('.sttabs')).forEach(function(el) {
@@ -45,7 +50,7 @@ Highcharts.chart('hasilGrafik', {
     chart: {
         type: 'spline'
     },
-    
+
     title: {
         text: 'Hasil Prediksi'
     },
