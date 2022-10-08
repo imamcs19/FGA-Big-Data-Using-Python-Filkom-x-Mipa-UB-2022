@@ -156,6 +156,29 @@ FrameWeb_bawah = """
 """
 Z_z = FrameWeb_bawah
 
+FrameWeb_atas_no_frame = """
+{% extends "extends/base_no_frame.html" %}
+{% block title %}
+    <title>Web App MatKom Dgn Python</title>
+{% endblock title %}
+{{ self.title() }}
+    Home
+{{ self.title() }}
+<button onclick="window.location.href='/'" class="btn btn-outline btn-rounded btn-info">
+    <i class="ti-arrow-left m-l-5"></i>
+    <span>Back Home</span>
+</button> Project 1
+
+{{ self.title() }}
+    Project 1
+
+{% block content %}
+"""
+
+
+A_a_no_frame = FrameWeb_atas_no_frame
+Z_z_no_frame = FrameWeb_bawah
+
 @app.route('/tts')
 def tts():
     return render_template('gtts.html')
@@ -2504,7 +2527,8 @@ def pengmas2022_timdosen():
     url_file_img2 = "static/img/Desain_Banner-PengMas_2022_v2.0.png"
 
     # return hasil
-    return render_template_string(A_a+template_view+Z_z, url_image2 = url_file_img1, url_image3 = url_file_img2)
+    # return render_template_string(A_a+template_view+Z_z, url_image2 = url_file_img1, url_image3 = url_file_img2)
+    return render_template_string(A_a_no_frame+template_view+Z_z_no_frame, url_image2 = url_file_img1, url_image3 = url_file_img2)
 
 @app.route('/pengmas2022')
 def pengmas2022():
