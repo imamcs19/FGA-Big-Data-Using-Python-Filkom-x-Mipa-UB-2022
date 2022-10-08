@@ -122,6 +122,40 @@ app.secret_key = 'fga^&&*(&^(filkom#BJH#G#VB#Big99nDatakPyICS_ap938255bnUB'
 
 # app.secret_key = secrets.token_bytes(32) # used to cryptographically sign session cookies
 
+# keterangan:
+# "#" adalah untuk comment
+# <br> adalah new line
+# &nbsp; adalah spasi
+# <!-- --> atau <!--- ---> adalah untuk comment
+
+# FrameWeb_atas & FrameWeb_bawah untuk dekorasi web
+# agar menjadi Web yang Responsif
+
+FrameWeb_atas = """
+{% extends "extends/base.html" %}
+{% block title %}
+    <title>Web App MatKom Dgn Python</title>
+{% endblock title %}
+{{ self.title() }}
+    Home
+{{ self.title() }}
+<button onclick="window.location.href='/'" class="btn btn-outline btn-rounded btn-info">
+    <i class="ti-arrow-left m-l-5"></i>
+    <span>Back Home</span>
+</button> Project 1
+
+{{ self.title() }}
+    Project 1
+
+{% block content %}
+"""
+A_a = FrameWeb_atas
+
+FrameWeb_bawah = """
+{% endblock content %}
+"""
+Z_z = FrameWeb_bawah
+
 @app.route('/tts')
 def tts():
     return render_template('gtts.html')
@@ -2384,6 +2418,21 @@ def pengmas2022_menu():
 # def pengmas2022_vidEdu2():
 #     return render_template("launchpad_menu3.html")
 
+@app.route('/pengmas2022_vidEdu2')
+def pengmas2022_vidEdu2():
+
+    # template_view = '''
+    # <iframe src="https://drive.google.com/file/d/1Rv_VwP8pgUAgeYvwuaQnTcuPtU7MEX8t/preview" width="880" height="489" allow="autoplay" sandbox="allow-same-origin allow-scripts"></iframe>
+    # '''
+
+    template_view = '''
+    <iframe src="https://drive.google.com/file/d/1Rv_VwP8pgUAgeYvwuaQnTcuPtU7MEX8t/preview" width="871" height="484" allow="autoplay" sandbox="allow-same-origin allow-scripts"></iframe>
+    '''
+
+    # <iframe src="https://drive.google.com/file/d/1Rv_VwP8pgUAgeYvwuaQnTcuPtU7MEX8t/preview" width="640" height="480" allow="autoplay"></iframe>
+
+    return render_template_string(template_view)
+
 @app.route('/pengmas2022_ppt1')
 def pengmas2022_ppt1():
     # template_view = '''
@@ -2394,14 +2443,68 @@ def pengmas2022_ppt1():
     # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=60000" frameborder="0" width="640" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
     # </div>
     # '''
+    # template_view = '''
+    # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=60000" frameborder="0" width="880" height="489" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    # '''
+
+    # <iframe src="https://onedrive.live.com/embed?cid=F4A0F481EA1DEE2D&resid=F4A0F481EA1DEE2D%21368&authkey=APiSSFU52i8G37Q&em=2" width="402" height="327" frameborder="0" scrolling="no"></iframe>
+
     template_view = '''
-    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=60000" frameborder="0" width="880" height="489" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    <iframe src="https://onedrive.live.com/embed?cid=F4A0F481EA1DEE2D&resid=F4A0F481EA1DEE2D%21368&authkey=APiSSFU52i8G37Q&em=2" width="880" height="489" frameborder="0" scrolling="no"></iframe>
     '''
+
+
 
     return render_template_string(template_view)
     # <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXsEpKGUUZagp0WXjpTtQiuImsBiqAMsQXBq0pk4eBd_QPX5LnmRc_xpdO9jaZ2A/embed?start=true&loop=true&delayms=3000" frameborder="0" width="1280" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
+@app.route('/pengmas2022_timdosen', methods=['GET'])
+def pengmas2022_timdosen():
 
+    import time
+    import os.path
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    template_view = '''
+            <!--- <html> --->
+            <!--- <head> --->
+            <!--- </head> --->
+            <!--- <body> --->
+              <form method="post">
+                  <div class="row">
+                    <!-- .col -->
+                    <div class="col-sm-12">
+                        <div class="white-box">
+                            <h3 class="box-title m-b-0">Tim Dosen & Poster PengMas 2022</h3>
+                            <div id="image-popups" class="row">
+                                <div class="col-sm-2">
+                                    <a href={{url_image2}} data-effect="mfp-zoom-in"><img src={{url_image2}} class="img-responsive">
+                                        <br>Tim</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href={{url_image3}} data-effect="mfp-newspaper"><img src={{url_image3}} class="img-responsive">
+                                        <br>Poster</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- .col -->
+                  </div>
+             </form>
+            <!--- </body> --->
+            <!--- </html> --->
+        '''
+
+    # Cara plot
+    # ---------------
+    # load file dalam path + nama file /static/img/..
+    url_file_img1 = "static/img/TimDosen.png"
+    url_file_img2 = "static/img/Desain_Banner-PengMas_2022_v2.0.png"
+
+    # return hasil
+    return render_template_string(A_a+template_view+Z_z, url_image2 = url_file_img1, url_image3 = url_file_img2)
 
 @app.route('/pengmas2022')
 def pengmas2022():
@@ -2610,18 +2713,22 @@ def pengmas2022():
 
         # h = 1 / \
         #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(baca_bobot_input)) + baca_bias)))
-        h = 1 /(1 + np.exp(-(np.dot(data_testing, np.transpose(baca_bobot_input)) + baca_bias)))
+
+        # h = 1 /(1 + np.exp(-(np.dot(data_testing, np.transpose(baca_bobot_input)) + baca_bias)))
+        h = 1 /(1 + np.exp(-(np.dot(data_testing_norm, np.transpose(baca_bobot_input)) + baca_bias)))
         predict = np.dot(h, baca_bobot_output)
         predict_denorm = (((predict - lower_boundary)/(upper_boundary-lower_boundary))*(get_max-get_min))+get_min
 
         hasil_rekomendasi_durasi = predict_denorm.item()
-        if predict_denorm.item() > 60:
-            durasi_final = 60
-            hasil_rekomendasi_durasi = durasi_final
+        hasil_rekomendasi_durasi_dlm_jam = hasil_rekomendasi_durasi/60
+        # if predict_denorm.item() > 60:
+        #     durasi_final = 60
+        #     hasil_rekomendasi_durasi = durasi_final
 
 
 
-        response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        # response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'durasi dlm jam': hasil_rekomendasi_durasi_dlm_jam, 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
         # Enable Access-Control-Allow-Origin
@@ -2630,7 +2737,9 @@ def pengmas2022():
     else:
         default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
         hasil_rekomendasi_durasi = default_rekomendasi_standar
-        response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        hasil_rekomendasi_durasi_dlm_jam = hasil_rekomendasi_durasi/60
+        # response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'durasi dlm jam': hasil_rekomendasi_durasi_dlm_jam, 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
         # Enable Access-Control-Allow-Origin
@@ -2652,7 +2761,7 @@ def pengmas2022():
     #     # resp2 ='{"mape":7.678250359881673,"y_aktual":[65000,65000,65000],"y_prediksi":[70497.38469675701,69750.32426425672,69724.87924075553]}'
 
 
-    return render_template("infografis_cloudAI.html", result = resp, celcius = suhu, date = Date, result2 = hasil_rekomendasi_durasi)
+    return render_template("infografis_cloudAI.html", result = resp, celcius = suhu, date = Date, result2 = hasil_rekomendasi_durasi, result3 = hasil_rekomendasi_durasi_dlm_jam)
 
 @app.route('/pengmas2022_crud')
 def pengmas2022_index():
