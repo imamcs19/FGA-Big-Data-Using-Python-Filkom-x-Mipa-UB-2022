@@ -91,7 +91,7 @@
                         <!--</div>-->
 
                         <li><a class="popup-youtube btn btn-danger" href="www.youtube.com/watch?v=Bp49uOYMNrk">Video Pengmas | Edukasi ke-1</a></li>
-                        <li><a href="#">Video Pengmas | Edukasi ke-2</a></li>
+                        <li><a class="popup-youtube btn btn-info" href="pengmas2022_vidEdu2">Video Pengmas | Edukasi ke-2</a></li>
                     </ul>
                 </div>
             </div>
@@ -160,7 +160,52 @@
                         type="button">View Detail <span class="caret"></span></button>
                     <ul role="menu" class="dropdown-menu">
                         <li><a class="simple-ajax-popup-center" href="pengmas2022_ppt1">Tentang PengMas</a></li>
-                        <li><a href="#">Tim Dosen Filkom UB</a></li>
+                        <li><a class="popup-with-form btn btn-success" href="#test-form">Tim Dosen Filkom UB</a></li>
+
+                        <form id="test-form" class="white-popup-block mfp-hide">
+                            <h1>Tim Dosen & Poster PengMas 2022</h1>
+                            <fieldset style="border:0;">
+                                <!--<p>Lightbox has an option to automatically focus on the first input. It's strongly recommended to use <code>inline</code> popup type for lightboxes with form instead of <code>ajax</code> (to keep entered data if the user accidentally refreshed the page).</p>-->
+                                <!--<div class="form-group">-->
+                                <!--    <label class="control-label" for="inputName">Name</label>-->
+                                <!--    <input type="text" class="form-control" id="inputName" name="name" placeholder="Name" required=""> </div>-->
+                                <!--<div class="form-group">-->
+                                <!--    <label class="control-label" for="inputEmail">Email</label>-->
+                                <!--    <input type="email" class="form-control" id="inputEmail" name="email" placeholder="example@domain.com" required=""> </div>-->
+                                <!--<div class="form-group">-->
+                                <!--    <label class="control-label" for="inputPhone">Phone</label>-->
+                                <!--    <input type="tel" class="form-control" id="inputPhone" name="phone" placeholder="Eg. +447500000000" required=""> </div>-->
+                                <!--<div class="form-group">-->
+                                <!--    <label class="control-label" for="textarea">Textarea</label>-->
+                                <!--    <br>-->
+                                <!--    <textarea class="form-control" id="textarea" style="width: 649px; height: 99px;">Try to resize me to see how popup CSS-based resizing works.</textarea>-->
+                                <!--</div>-->
+
+                                <div class="row">
+                                    <!-- .col -->
+                                    <div class="col-sm-12">
+                                        <div class="white-box">
+                                            <!--<h3 class="box-title m-b-0">Tim Dosen & Poster PengMas 2022</h3>-->
+                                            <label class="control-label">Tim Dosen & Poster PengMas 2022</label>
+                                            <div id="image-popups" class="row">
+                                                <div class="col-sm-2">
+                                                    <a href="{{ url_for('static', filename = 'img/TimDosen.png') }}" data-effect="mfp-zoom-in"><img src="{{ url_for('static', filename = 'img/TimDosen.png') }}" class="img-responsive">
+                                                        <br>Tim</a>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <a href="{{ url_for('static', filename = 'img/Desain_Banner-PengMas_2022_v2.0.png') }}" data-effect="mfp-newspaper"><img src="{{ url_for('static', filename = 'img/Desain_Banner-PengMas_2022_v2.0.png') }}" class="img-responsive">
+                                                        <br>Poster</a>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- .col -->
+                                </div>
+
+                            </fieldset>
+                        </form>
+
                     </ul>
                 </div>
             </div>
