@@ -160,9 +160,13 @@
                         type="button">View Detail <span class="caret"></span></button>
                     <ul role="menu" class="dropdown-menu">
                         <li><a class="simple-ajax-popup-center" href="pengmas2022_ppt1">Tentang PengMas</a></li>
-                        <li><a class="popup-with-form btn btn-success" href="#test-form">Tim Dosen Filkom UB</a></li>
+                        <!--<li><a class="popup-with-form btn btn-success" href="#test-form">Tim Dosen Filkom UB</a></li>-->
+                        <!--<li><a class="simple-ajax-popup-center btn btn-success" href="pengmas2022_timdosen">Tim Dosen Filkom UB</a></li>-->
+                        <li><div id="image-popups"> <a href="{{ url_for('static', filename = 'img/TimDosen.png') }}" data-effect="mfp-zoom-in"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tim</a>
+                        | <a href="{{ url_for('static', filename = 'img/Desain_Banner-PengMas_2022_v2.0.png') }}" data-effect="mfp-newspaper">Poster</a></div></li>
 
                         <form id="test-form" class="white-popup-block mfp-hide">
+                        <!--<form id="test-form" class="simple-ajax-popup-center mfp-hide">-->
                             <h1>Tim Dosen & Poster PengMas 2022</h1>
                             <fieldset style="border:0;">
                                 <!--<p>Lightbox has an option to automatically focus on the first input. It's strongly recommended to use <code>inline</code> popup type for lightboxes with form instead of <code>ajax</code> (to keep entered data if the user accidentally refreshed the page).</p>-->
@@ -181,7 +185,7 @@
                                 <!--    <textarea class="form-control" id="textarea" style="width: 649px; height: 99px;">Try to resize me to see how popup CSS-based resizing works.</textarea>-->
                                 <!--</div>-->
 
-                                <div class="row">
+                                <div class="simple-ajax-popup-center">
                                     <!-- .col -->
                                     <div class="col-sm-12">
                                         <div class="white-box">
