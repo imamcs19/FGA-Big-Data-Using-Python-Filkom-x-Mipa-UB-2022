@@ -2530,6 +2530,9 @@ def pengmas2022_timdosen():
     # return render_template_string(A_a+template_view+Z_z, url_image2 = url_file_img1, url_image3 = url_file_img2)
     return render_template_string(A_a_no_frame+template_view+Z_z_no_frame, url_image2 = url_file_img1, url_image3 = url_file_img2)
 
+# @app.route('/pengmas2022_api')
+# def pengmas2022_api():
+
 @app.route('/pengmas2022')
 def pengmas2022():
     # get data dari iot API
@@ -3215,16 +3218,26 @@ def api_pengmas2022_elm_test():
 
         # h = 1 / \
         #     (1 + np.exp(-(np.dot(data_testing[:, :banyak_fitur], np.transpose(baca_bobot_input)) + baca_bias)))
-        h = 1 /(1 + np.exp(-(np.dot(data_testing, np.transpose(baca_bobot_input)) + baca_bias)))
+        h = 1 /(1 + np.exp(-(np.dot(data_testing_norm, np.transpose(baca_bobot_input)) + baca_bias)))
         predict = np.dot(h, baca_bobot_output)
         predict_denorm = (((predict - lower_boundary)/(upper_boundary-lower_boundary))*(get_max-get_min))+get_min
 
         hasil_rekomendasi_durasi = predict_denorm.item()
-        if predict_denorm.item() > 60:
-            durasi_final = 60
-            hasil_rekomendasi_durasi = durasi_final
+        # if predict_denorm.item() > 60:
+        #     durasi_final = 60
+        #     hasil_rekomendasi_durasi = durasi_final
 
-        response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        # response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+
+        hasil_rekomendasi_durasi_dlm_jam = hasil_rekomendasi_durasi/60
+        # if predict_denorm.item() > 60:
+        #     durasi_final = 60
+        #     hasil_rekomendasi_durasi = durasi_final
+
+
+
+        # response = jsonify({'durasi': hasil_rekomendasi_durasi, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        response = jsonify({'durasi dlm menit': hasil_rekomendasi_durasi, 'durasi dlm jam': hasil_rekomendasi_durasi_dlm_jam, 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
         # Enable Access-Control-Allow-Origin
@@ -3239,7 +3252,9 @@ def api_pengmas2022_elm_test():
     else:
         default_rekomendasi_standar = 33 # dalam menit untuk tiap harinya
         hasil_rekomendasi_durasi = default_rekomendasi_standar
-        response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        hasil_rekomendasi_durasi_dlm_jam = hasil_rekomendasi_durasi/60
+        # response = jsonify({'durasi': default_rekomendasi_standar, 'satuan': 'menit', 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
+        response = jsonify({'durasi dlm menit': hasil_rekomendasi_durasi, 'durasi dlm jam': hasil_rekomendasi_durasi_dlm_jam, 'keterangan': 'PengMas Filkom UB 2022 | CloudAI penentuan lama waktu pengairan hidroponik dgn Algoritma ELM, untuk tiap harinya dari data iot API di kota Malang'})
 
 
         # Enable Access-Control-Allow-Origin
