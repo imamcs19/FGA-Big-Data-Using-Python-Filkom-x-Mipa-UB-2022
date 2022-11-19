@@ -3,13 +3,13 @@
     </head>
     <body>
       <form action="/post_add3" method="post">
-        Masukkan nilai a = <input type="text" name="a" {%="" if="" a_save="" is="" defined="" and="" %}="" value="{{a_save}}" else="" endif="">
+        Masukkan nilai a = <input type="text" name="a" {% if a_save is defined and a_save %} value="{{a_save}}" {% else %} value="" {% endif %}>
         <br>
-        Masukkan nilai b = <input type="text" name="b" {%="" if="" b_save="" is="" defined="" and="" %}="" value="{{b_save}}" else="" endif="">
+        Masukkan nilai b = <input type="text" name="b" {% if b_save is defined and b_save %} value="{{b_save}}" {% else %} value="" {% endif %}>
         <input type="submit" value="Hitung a + b">
       </form>
       {% if a_save is defined and a_save %}
         <h2>Hasil a + b = {{a_save}} + {{b_save}} = {{c_save}} </h2>
       {% endif %}
-    
+
 </body></html>
